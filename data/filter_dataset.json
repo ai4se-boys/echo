@@ -1,0 +1,2633 @@
+{
+  "total_count": 410,
+  "exclude_count": 0,
+  "success_count": 410,
+  "failed_count": 0,
+  "skip_count": 0,
+  "test_cases": null,
+  "repo_module": "github.com/labstack/echo/v4",
+  "base_commit": "55cb3b625d1228827fa35a3cfc4dd15b3a3a406b",
+  "git_repo": "https://github.com/labstack/echo.git",
+  "dataset": [
+    {
+      "id": "github.com/labstack/echo/v4/echo.go:configureServer",
+      "testcases": [
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoStaticRedirectIndex"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoStart"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_StartAutoTLS"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoStartTLSByteString"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_StartTLS"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoClose"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoShutdown"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_ListenerAddr"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoListenerNetworkInvalid"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_TLSListenerAddr"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_StartServer"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoStartTLSAndStart"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoListenerNetwork"
+        }
+      ],
+      "name": "configureServer",
+      "signature": "(e *Echo) configureServer (s *http.Server) error",
+      "ground_truth": "func (e *Echo) configureServer(s *http.Server) error {\n\t// Setup\n\te.colorer.SetOutput(e.Logger.Output())\n\ts.ErrorLog = e.StdLogger\n\ts.Handler = e\n\tif e.Debug {\n\t\te.Logger.SetLevel(log.DEBUG)\n\t}\n\n\tif !e.HideBanner {\n\t\te.colorer.Printf(banner, e.colorer.Red(\"v\"+Version), e.colorer.Blue(website))\n\t}\n\n\tif s.TLSConfig == nil {\n\t\tif e.Listener == nil {\n\t\t\tl, err := newListener(s.Addr, e.ListenerNetwork)\n\t\t\tif err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t\te.Listener = l\n\t\t}\n\t\tif !e.HidePort {\n\t\t\te.colorer.Printf(\"⇨ http server started on %s\\n\", e.colorer.Green(e.Listener.Addr()))\n\t\t}\n\t\treturn nil\n\t}\n\tif e.TLSListener == nil {\n\t\tl, err := newListener(s.Addr, e.ListenerNetwork)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\te.TLSListener = tls.NewListener(l, s.TLSConfig)\n\t}\n\tif !e.HidePort {\n\t\te.colorer.Printf(\"⇨ https server started on %s\\n\", e.colorer.Green(e.TLSListener.Addr()))\n\t}\n\treturn nil\n}",
+      "function_comment": "",
+      "function_statement": "",
+      "start_line": 773,
+      "end_line": 810,
+      "file_path": "./echo.go",
+      "repo_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "Echo struct {\n\tfilesystem\n\tcommon\n\t// startupMutex is mutex to lock Echo instance access during server configuration and startup. Useful for to get\n\t// listener address info (on which interface/port was listener bound) without having data races.\n\tstartupMutex sync.RWMutex\n\tcolorer      *color.Color\n\n\t// premiddleware are middlewares that are run before routing is done. In case a pre-middleware returns\n\t// an error the router is not executed and the request will end up in the global error handler.\n\tpremiddleware []MiddlewareFunc\n\tmiddleware    []MiddlewareFunc\n\tmaxParam      *int\n\trouter        *Router\n\trouters       map[string]*Router\n\tpool          sync.Pool\n\n\tStdLogger        *stdLog.Logger\n\tServer           *http.Server\n\tTLSServer        *http.Server\n\tListener         net.Listener\n\tTLSListener      net.Listener\n\tAutoTLSManager   autocert.Manager\n\tHTTPErrorHandler HTTPErrorHandler\n\tBinder           Binder\n\tJSONSerializer   JSONSerializer\n\tValidator        Validator\n\tRenderer         Renderer\n\tLogger           Logger\n\tIPExtractor      IPExtractor\n\tListenerNetwork  string\n\n\t// OnAddRouteHandler is called when Echo adds new route to specific host router.\n\tOnAddRouteHandler func(host string, route Route, handler HandlerFunc, middleware []MiddlewareFunc)\n\tDisableHTTP2      bool\n\tDebug             bool\n\tHideBanner        bool\n\tHidePort          bool\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/log.go",
+          "code_snippet": "Logger interface {\n\tOutput() io.Writer\n\tSetOutput(w io.Writer)\n\tPrefix() string\n\tSetPrefix(p string)\n\tLevel() log.Lvl\n\tSetLevel(v log.Lvl)\n\tSetHeader(h string)\n\tPrint(i ...interface{})\n\tPrintf(format string, args ...interface{})\n\tPrintj(j log.JSON)\n\tDebug(i ...interface{})\n\tDebugf(format string, args ...interface{})\n\tDebugj(j log.JSON)\n\tInfo(i ...interface{})\n\tInfof(format string, args ...interface{})\n\tInfoj(j log.JSON)\n\tWarn(i ...interface{})\n\tWarnf(format string, args ...interface{})\n\tWarnj(j log.JSON)\n\tError(i ...interface{})\n\tErrorf(format string, args ...interface{})\n\tErrorj(j log.JSON)\n\tFatal(i ...interface{})\n\tFatalj(j log.JSON)\n\tFatalf(format string, args ...interface{})\n\tPanic(i ...interface{})\n\tPanicj(j log.JSON)\n\tPanicf(format string, args ...interface{})\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "banner = `\n   ____    __\n  / __/___/ /  ___\n / _// __/ _ \\/ _ \\\n/___/\\__/_//_/\\___/ %s\nHigh performance, minimalist Go web framework\n%s\n____________________________________O/_______\n                                    O\\\n`",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "Version = \"4.13.4\"",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "website = \"https://echo.labstack.com\"",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "func newListener(address, network string) (*tcpKeepAliveListener, error) {\n\tif network != \"tcp\" \u0026\u0026 network != \"tcp4\" \u0026\u0026 network != \"tcp6\" {\n\t\treturn nil, ErrInvalidListenerNetwork\n\t}\n\tl, err := net.Listen(network, address)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\treturn \u0026tcpKeepAliveListener{l.(*net.TCPListener)}, nil\n}",
+          "ref_module": ""
+        }
+      ],
+      "third_party_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) SetOutput(w io.Writer) {\n\tc.output = w\n\tif w, ok := w.(*os.File); !ok || !isatty.IsTerminal(w.Fd()) {\n\t\tc.disabled = true\n\t}\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/log/log.go",
+          "code_snippet": "DEBUG Lvl = iota + 1",
+          "ref_module": "log"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Printf(format string, args ...interface{}) {\n\tfmt.Fprintf(c.output, format, args...)\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Red(msg interface{}, styles ...string) string {\n\treturn red(msg, styles, c)\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Blue(msg interface{}, styles ...string) string {\n\treturn blue(msg, styles, c)\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Green(msg interface{}, styles ...string) string {\n\treturn green(msg, styles, c)\n}",
+          "ref_module": "color"
+        }
+      ],
+      "system_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/server.go",
+          "code_snippet": "Server struct {\n\t// Addr optionally specifies the TCP address for the server to listen on,\n\t// in the form \"host:port\". If empty, \":http\" (port 80) is used.\n\t// The service names are defined in RFC 6335 and assigned by IANA.\n\t// See net.Dial for details of the address format.\n\tAddr string\n\n\tHandler Handler // handler to invoke, http.DefaultServeMux if nil\n\n\t// DisableGeneralOptionsHandler, if true, passes \"OPTIONS *\" requests to the Handler,\n\t// otherwise responds with 200 OK and Content-Length: 0.\n\tDisableGeneralOptionsHandler bool\n\n\t// TLSConfig optionally provides a TLS configuration for use\n\t// by ServeTLS and ListenAndServeTLS. Note that this value is\n\t// cloned by ServeTLS and ListenAndServeTLS, so it's not\n\t// possible to modify the configuration with methods like\n\t// tls.Config.SetSessionTicketKeys. To use\n\t// SetSessionTicketKeys, use Server.Serve with a TLS Listener\n\t// instead.\n\tTLSConfig *tls.Config\n\n\t// ReadTimeout is the maximum duration for reading the entire\n\t// request, including the body. A zero or negative value means\n\t// there will be no timeout.\n\t//\n\t// Because ReadTimeout does not let Handlers make per-request\n\t// decisions on each request body's acceptable deadline or\n\t// upload rate, most users will prefer to use\n\t// ReadHeaderTimeout. It is valid to use them both.\n\tReadTimeout time.Duration\n\n\t// ReadHeaderTimeout is the amount of time allowed to read\n\t// request headers. The connection's read deadline is reset\n\t// after reading the headers and the Handler can decide what\n\t// is considered too slow for the body. If zero, the value of\n\t// ReadTimeout is used. If negative, or if zero and ReadTimeout\n\t// is zero or negative, there is no timeout.\n\tReadHeaderTimeout time.Duration\n\n\t// WriteTimeout is the maximum duration before timing out\n\t// writes of the response. It is reset whenever a new\n\t// request's header is read. Like ReadTimeout, it does not\n\t// let Handlers make decisions on a per-request basis.\n\t// A zero or negative value means there will be no timeout.\n\tWriteTimeout time.Duration\n\n\t// IdleTimeout is the maximum amount of time to wait for the\n\t// next request when keep-alives are enabled. If zero, the value\n\t// of ReadTimeout is used. If negative, or if zero and ReadTimeout\n\t// is zero or negative, there is no timeout.\n\tIdleTimeout time.Duration\n\n\t// MaxHeaderBytes controls the maximum number of bytes the\n\t// server will read parsing the request header's keys and\n\t// values, including the request line. It does not limit the\n\t// size of the request body.\n\t// If zero, DefaultMaxHeaderBytes is used.\n\tMaxHeaderBytes int\n\n\t// TLSNextProto optionally specifies a function to take over\n\t// ownership of the provided TLS connection when an ALPN\n\t// protocol upgrade has occurred. The map key is the protocol\n\t// name negotiated. The Handler argument should be used to\n\t// handle HTTP requests and will initialize the Request's TLS\n\t// and RemoteAddr if not already set. The connection is\n\t// automatically closed when the function returns.\n\t// If TLSNextProto is not nil, HTTP/2 support is not enabled\n\t// automatically.\n\tTLSNextProto map[string]func(*Server, *tls.Conn, Handler)\n\n\t// ConnState specifies an optional callback function that is\n\t// called when a client connection changes state. See the\n\t// ConnState type and associated constants for details.\n\tConnState func(net.Conn, ConnState)\n\n\t// ErrorLog specifies an optional logger for errors accepting\n\t// connections, unexpected behavior from handlers, and\n\t// underlying FileSystem errors.\n\t// If nil, logging is done via the log package's standard logger.\n\tErrorLog *log.Logger\n\n\t// BaseContext optionally specifies a function that returns\n\t// the base context for incoming requests on this server.\n\t// The provided Listener is the specific Listener that's\n\t// about to start accepting requests.\n\t// If BaseContext is nil, the default is context.Background().\n\t// If non-nil, it must return a non-nil context.\n\tBaseContext func(net.Listener) context.Context\n\n\t// ConnContext optionally specifies a function that modifies\n\t// the context used for a new connection c. The provided ctx\n\t// is derived from the base context and has a ServerContextKey\n\t// value.\n\tConnContext func(ctx context.Context, c net.Conn) context.Context\n\n\tinShutdown atomic.Bool // true when server is in shutdown\n\n\tdisableKeepAlives atomic.Bool\n\tnextProtoOnce     sync.Once // guards setupHTTP2_* init\n\tnextProtoErr      error     // result of http2.ConfigureServer if used\n\n\tmu         sync.Mutex\n\tlisteners  map[*net.Listener]struct{}\n\tactiveConn map[*conn]struct{}\n\tonShutdown []func()\n\n\tlistenerGroup sync.WaitGroup\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "error interface {\n\tError() string\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "nil Type",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/net.go",
+          "code_snippet": "Listener interface {\n\t// Accept waits for and returns the next connection to the listener.\n\tAccept() (Conn, error)\n\n\t// Close closes the listener.\n\t// Any blocked Accept operations will be unblocked and return errors.\n\tClose() error\n\n\t// Addr returns the listener's network address.\n\tAddr() Addr\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/crypto/tls/tls.go",
+          "code_snippet": "func NewListener(inner net.Listener, config *Config) net.Listener {\n\tl := new(listener)\n\tl.Listener = inner\n\tl.config = config\n\treturn l\n}",
+          "ref_module": ""
+        }
+      ],
+      "covered_lines": [
+        773,
+        774,
+        775,
+        776,
+        777,
+        778,
+        779,
+        780,
+        782,
+        783,
+        784,
+        786,
+        787,
+        788,
+        789,
+        790,
+        791,
+        792,
+        794,
+        795,
+        796,
+        797,
+        799,
+        800,
+        801,
+        802,
+        803,
+        804,
+        806,
+        807,
+        808,
+        809
+      ],
+      "cover_details": {
+        "line_cover_rate": 0.8421052631578947
+      }
+    },
+    {
+      "id": "github.com/labstack/echo/v4/middleware/body_limit.go:BodyLimitWithConfig",
+      "testcases": [
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/body_limit_test.go",
+          "func_name": "TestBodyLimitWithConfig_Skipper"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/body_limit_test.go",
+          "func_name": "TestBodyLimit"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/body_limit_test.go",
+          "func_name": "TestBodyLimit_panicOnInvalidLimit"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/body_limit_test.go",
+          "func_name": "TestBodyLimitWithConfig"
+        }
+      ],
+      "name": "BodyLimitWithConfig",
+      "signature": "BodyLimitWithConfig (config BodyLimitConfig) echo.MiddlewareFunc",
+      "ground_truth": "func BodyLimitWithConfig(config BodyLimitConfig) echo.MiddlewareFunc {\n\t// Defaults\n\tif config.Skipper == nil {\n\t\tconfig.Skipper = DefaultBodyLimitConfig.Skipper\n\t}\n\n\tlimit, err := bytes.Parse(config.Limit)\n\tif err != nil {\n\t\tpanic(fmt.Errorf(\"echo: invalid body-limit=%s\", config.Limit))\n\t}\n\tconfig.limit = limit\n\tpool := limitedReaderPool(config)\n\n\treturn func(next echo.HandlerFunc) echo.HandlerFunc {\n\t\treturn func(c echo.Context) error {\n\t\t\tif config.Skipper(c) {\n\t\t\t\treturn next(c)\n\t\t\t}\n\n\t\t\treq := c.Request()\n\n\t\t\t// Based on content length\n\t\t\tif req.ContentLength \u003e config.limit {\n\t\t\t\treturn echo.ErrStatusRequestEntityTooLarge\n\t\t\t}\n\n\t\t\t// Based on content read\n\t\t\tr := pool.Get().(*limitedReader)\n\t\t\tr.Reset(req.Body)\n\t\t\tdefer pool.Put(r)\n\t\t\treq.Body = r\n\n\t\t\treturn next(c)\n\t\t}\n\t}\n}",
+      "function_comment": "// BodyLimitWithConfig returns a BodyLimit middleware with config.\n// See: `BodyLimit()`.",
+      "function_statement": "// BodyLimitWithConfig returns a BodyLimit middleware with config.\n// See: `BodyLimit()`.",
+      "start_line": 53,
+      "end_line": 88,
+      "file_path": "./middleware/body_limit.go",
+      "repo_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/middleware/body_limit.go",
+          "code_snippet": "BodyLimitConfig struct {\n\t// Skipper defines a function to skip middleware.\n\tSkipper Skipper\n\n\t// Maximum allowed size for a request body, it can be specified\n\t// as `4x` or `4xB`, where x is one of the multiple from K, M, G, T or P.\n\tLimit string `yaml:\"limit\"`\n\tlimit int64\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "MiddlewareFunc func(next HandlerFunc) HandlerFunc",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/middleware/body_limit.go",
+          "code_snippet": "DefaultBodyLimitConfig = BodyLimitConfig{\n\tSkipper: DefaultSkipper,\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/middleware/body_limit.go",
+          "code_snippet": "func limitedReaderPool(c BodyLimitConfig) sync.Pool {\n\treturn sync.Pool{\n\t\tNew: func() interface{} {\n\t\t\treturn \u0026limitedReader{BodyLimitConfig: c}\n\t\t},\n\t}\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "HandlerFunc func(c Context) error",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/context.go",
+          "code_snippet": "Context interface {\n\t// Request returns `*http.Request`.\n\tRequest() *http.Request\n\n\t// SetRequest sets `*http.Request`.\n\tSetRequest(r *http.Request)\n\n\t// SetResponse sets `*Response`.\n\tSetResponse(r *Response)\n\n\t// Response returns `*Response`.\n\tResponse() *Response\n\n\t// IsTLS returns true if HTTP connection is TLS otherwise false.\n\tIsTLS() bool\n\n\t// IsWebSocket returns true if HTTP connection is WebSocket otherwise false.\n\tIsWebSocket() bool\n\n\t// Scheme returns the HTTP protocol scheme, `http` or `https`.\n\tScheme() string\n\n\t// RealIP returns the client's network address based on `X-Forwarded-For`\n\t// or `X-Real-IP` request header.\n\t// The behavior can be configured using `Echo#IPExtractor`.\n\tRealIP() string\n\n\t// Path returns the registered path for the handler.\n\tPath() string\n\n\t// SetPath sets the registered path for the handler.\n\tSetPath(p string)\n\n\t// Param returns path parameter by name.\n\tParam(name string) string\n\n\t// ParamNames returns path parameter names.\n\tParamNames() []string\n\n\t// SetParamNames sets path parameter names.\n\tSetParamNames(names ...string)\n\n\t// ParamValues returns path parameter values.\n\tParamValues() []string\n\n\t// SetParamValues sets path parameter values.\n\tSetParamValues(values ...string)\n\n\t// QueryParam returns the query param for the provided name.\n\tQueryParam(name string) string\n\n\t// QueryParams returns the query parameters as `url.Values`.\n\tQueryParams() url.Values\n\n\t// QueryString returns the URL query string.\n\tQueryString() string\n\n\t// FormValue returns the form field value for the provided name.\n\tFormValue(name string) string\n\n\t// FormParams returns the form parameters as `url.Values`.\n\tFormParams() (url.Values, error)\n\n\t// FormFile returns the multipart form file for the provided name.\n\tFormFile(name string) (*multipart.FileHeader, error)\n\n\t// MultipartForm returns the multipart form.\n\tMultipartForm() (*multipart.Form, error)\n\n\t// Cookie returns the named cookie provided in the request.\n\tCookie(name string) (*http.Cookie, error)\n\n\t// SetCookie adds a `Set-Cookie` header in HTTP response.\n\tSetCookie(cookie *http.Cookie)\n\n\t// Cookies returns the HTTP cookies sent with the request.\n\tCookies() []*http.Cookie\n\n\t// Get retrieves data from the context.\n\tGet(key string) any\n\n\t// Set saves data in the context.\n\tSet(key string, val any)\n\n\t// Bind binds path params, query params and the request body into provided type `i`. The default binder\n\t// binds body based on Content-Type header.\n\tBind(i any) error\n\n\t// Validate validates provided `i`. It is usually called after `Context#Bind()`.\n\t// Validator must be registered using `Echo#Validator`.\n\tValidate(i any) error\n\n\t// Render renders a template with data and sends a text/html response with status\n\t// code. Renderer must be registered using `Echo.Renderer`.\n\tRender(code int, name string, data any) error\n\n\t// HTML sends an HTTP response with status code.\n\tHTML(code int, html string) error\n\n\t// HTMLBlob sends an HTTP blob response with status code.\n\tHTMLBlob(code int, b []byte) error\n\n\t// String sends a string response with status code.\n\tString(code int, s string) error\n\n\t// JSON sends a JSON response with status code.\n\tJSON(code int, i any) error\n\n\t// JSONPretty sends a pretty-print JSON with status code.\n\tJSONPretty(code int, i any, indent string) error\n\n\t// JSONBlob sends a JSON blob response with status code.\n\tJSONBlob(code int, b []byte) error\n\n\t// JSONP sends a JSONP response with status code. It uses `callback` to construct\n\t// the JSONP payload.\n\tJSONP(code int, callback string, i any) error\n\n\t// JSONPBlob sends a JSONP blob response with status code. It uses `callback`\n\t// to construct the JSONP payload.\n\tJSONPBlob(code int, callback string, b []byte) error\n\n\t// XML sends an XML response with status code.\n\tXML(code int, i any) error\n\n\t// XMLPretty sends a pretty-print XML with status code.\n\tXMLPretty(code int, i any, indent string) error\n\n\t// XMLBlob sends an XML blob response with status code.\n\tXMLBlob(code int, b []byte) error\n\n\t// Blob sends a blob response with status code and content type.\n\tBlob(code int, contentType string, b []byte) error\n\n\t// Stream sends a streaming response with status code and content type.\n\tStream(code int, contentType string, r io.Reader) error\n\n\t// File sends a response with the content of the file.\n\tFile(file string) error\n\n\t// Attachment sends a response as attachment, prompting client to save the\n\t// file.\n\tAttachment(file string, name string) error\n\n\t// Inline sends a response as inline, opening the file in the browser.\n\tInline(file string, name string) error\n\n\t// NoContent sends a response with no body and a status code.\n\tNoContent(code int) error\n\n\t// Redirect redirects the request to a provided URL with status code.\n\tRedirect(code int, url string) error\n\n\t// Error invokes the registered global HTTP error handler. Generally used by middleware.\n\t// A side-effect of calling global error handler is that now Response has been committed (sent to the client) and\n\t// middlewares up in chain can not change Response status code or Response body anymore.\n\t//\n\t// Avoid using this method in handlers as no middleware will be able to effectively handle errors after that.\n\tError(err error)\n\n\t// Handler returns the matched handler by router.\n\tHandler() HandlerFunc\n\n\t// SetHandler sets the matched handler by router.\n\tSetHandler(h HandlerFunc)\n\n\t// Logger returns the `Logger` instance.\n\tLogger() Logger\n\n\t// SetLogger Set the logger\n\tSetLogger(l Logger)\n\n\t// Echo returns the `Echo` instance.\n\tEcho() *Echo\n\n\t// Reset resets the context after request completes. It must be called along\n\t// with `Echo#AcquireContext()` and `Echo#ReleaseContext()`.\n\t// See `Echo#ServeHTTP()`\n\tReset(r *http.Request, w http.ResponseWriter)\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "ErrStatusRequestEntityTooLarge   = NewHTTPError(http.StatusRequestEntityTooLarge)",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/middleware/body_limit.go",
+          "code_snippet": "limitedReader struct {\n\tBodyLimitConfig\n\treader io.ReadCloser\n\tread   int64\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/middleware/body_limit.go",
+          "code_snippet": "func (r *limitedReader) Reset(reader io.ReadCloser) {\n\tr.reader = reader\n\tr.read = 0\n}",
+          "ref_module": ""
+        }
+      ],
+      "third_party_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/bytes/bytes.go",
+          "code_snippet": "func Parse(value string) (int64, error) {\n\treturn global.Parse(value)\n}",
+          "ref_module": "bytes"
+        }
+      ],
+      "system_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "nil Type",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "func panic(v any)",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/fmt/errors.go",
+          "code_snippet": "func Errorf(format string, a ...any) error {\n\tp := newPrinter()\n\tp.wrapErrs = true\n\tp.doPrintf(format, a)\n\ts := string(p.buf)\n\tvar err error\n\tswitch len(p.wrappedErrs) {\n\tcase 0:\n\t\terr = errors.New(s)\n\tcase 1:\n\t\tw := \u0026wrapError{msg: s}\n\t\tw.err, _ = a[p.wrappedErrs[0]].(error)\n\t\terr = w\n\tdefault:\n\t\tif p.reordered {\n\t\t\tslices.Sort(p.wrappedErrs)\n\t\t}\n\t\tvar errs []error\n\t\tfor i, argNum := range p.wrappedErrs {\n\t\t\tif i \u003e 0 \u0026\u0026 p.wrappedErrs[i-1] == argNum {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif e, ok := a[argNum].(error); ok {\n\t\t\t\terrs = append(errs, e)\n\t\t\t}\n\t\t}\n\t\terr = \u0026wrapErrors{s, errs}\n\t}\n\tp.free()\n\treturn err\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "error interface {\n\tError() string\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/request.go",
+          "code_snippet": "Request struct {\n\t// Method specifies the HTTP method (GET, POST, PUT, etc.).\n\t// For client requests, an empty string means GET.\n\tMethod string\n\n\t// URL specifies either the URI being requested (for server\n\t// requests) or the URL to access (for client requests).\n\t//\n\t// For server requests, the URL is parsed from the URI\n\t// supplied on the Request-Line as stored in RequestURI.  For\n\t// most requests, fields other than Path and RawQuery will be\n\t// empty. (See RFC 7230, Section 5.3)\n\t//\n\t// For client requests, the URL's Host specifies the server to\n\t// connect to, while the Request's Host field optionally\n\t// specifies the Host header value to send in the HTTP\n\t// request.\n\tURL *url.URL\n\n\t// The protocol version for incoming server requests.\n\t//\n\t// For client requests, these fields are ignored. The HTTP\n\t// client code always uses either HTTP/1.1 or HTTP/2.\n\t// See the docs on Transport for details.\n\tProto      string // \"HTTP/1.0\"\n\tProtoMajor int    // 1\n\tProtoMinor int    // 0\n\n\t// Header contains the request header fields either received\n\t// by the server or to be sent by the client.\n\t//\n\t// If a server received a request with header lines,\n\t//\n\t//\tHost: example.com\n\t//\taccept-encoding: gzip, deflate\n\t//\tAccept-Language: en-us\n\t//\tfOO: Bar\n\t//\tfoo: two\n\t//\n\t// then\n\t//\n\t//\tHeader = map[string][]string{\n\t//\t\t\"Accept-Encoding\": {\"gzip, deflate\"},\n\t//\t\t\"Accept-Language\": {\"en-us\"},\n\t//\t\t\"Foo\": {\"Bar\", \"two\"},\n\t//\t}\n\t//\n\t// For incoming requests, the Host header is promoted to the\n\t// Request.Host field and removed from the Header map.\n\t//\n\t// HTTP defines that header names are case-insensitive. The\n\t// request parser implements this by using CanonicalHeaderKey,\n\t// making the first character and any characters following a\n\t// hyphen uppercase and the rest lowercase.\n\t//\n\t// For client requests, certain headers such as Content-Length\n\t// and Connection are automatically written when needed and\n\t// values in Header may be ignored. See the documentation\n\t// for the Request.Write method.\n\tHeader Header\n\n\t// Body is the request's body.\n\t//\n\t// For client requests, a nil body means the request has no\n\t// body, such as a GET request. The HTTP Client's Transport\n\t// is responsible for calling the Close method.\n\t//\n\t// For server requests, the Request Body is always non-nil\n\t// but will return EOF immediately when no body is present.\n\t// The Server will close the request body. The ServeHTTP\n\t// Handler does not need to.\n\t//\n\t// Body must allow Read to be called concurrently with Close.\n\t// In particular, calling Close should unblock a Read waiting\n\t// for input.\n\tBody io.ReadCloser\n\n\t// GetBody defines an optional func to return a new copy of\n\t// Body. It is used for client requests when a redirect requires\n\t// reading the body more than once. Use of GetBody still\n\t// requires setting Body.\n\t//\n\t// For server requests, it is unused.\n\tGetBody func() (io.ReadCloser, error)\n\n\t// ContentLength records the length of the associated content.\n\t// The value -1 indicates that the length is unknown.\n\t// Values \u003e= 0 indicate that the given number of bytes may\n\t// be read from Body.\n\t//\n\t// For client requests, a value of 0 with a non-nil Body is\n\t// also treated as unknown.\n\tContentLength int64\n\n\t// TransferEncoding lists the transfer encodings from outermost to\n\t// innermost. An empty list denotes the \"identity\" encoding.\n\t// TransferEncoding can usually be ignored; chunked encoding is\n\t// automatically added and removed as necessary when sending and\n\t// receiving requests.\n\tTransferEncoding []string\n\n\t// Close indicates whether to close the connection after\n\t// replying to this request (for servers) or after sending this\n\t// request and reading its response (for clients).\n\t//\n\t// For server requests, the HTTP server handles this automatically\n\t// and this field is not needed by Handlers.\n\t//\n\t// For client requests, setting this field prevents re-use of\n\t// TCP connections between requests to the same hosts, as if\n\t// Transport.DisableKeepAlives were set.\n\tClose bool\n\n\t// For server requests, Host specifies the host on which the\n\t// URL is sought. For HTTP/1 (per RFC 7230, section 5.4), this\n\t// is either the value of the \"Host\" header or the host name\n\t// given in the URL itself. For HTTP/2, it is the value of the\n\t// \":authority\" pseudo-header field.\n\t// It may be of the form \"host:port\". For international domain\n\t// names, Host may be in Punycode or Unicode form. Use\n\t// golang.org/x/net/idna to convert it to either format if\n\t// needed.\n\t// To prevent DNS rebinding attacks, server Handlers should\n\t// validate that the Host header has a value for which the\n\t// Handler considers itself authoritative. The included\n\t// ServeMux supports patterns registered to particular host\n\t// names and thus protects its registered Handlers.\n\t//\n\t// For client requests, Host optionally overrides the Host\n\t// header to send. If empty, the Request.Write method uses\n\t// the value of URL.Host. Host may contain an international\n\t// domain name.\n\tHost string\n\n\t// Form contains the parsed form data, including both the URL\n\t// field's query parameters and the PATCH, POST, or PUT form data.\n\t// This field is only available after ParseForm is called.\n\t// The HTTP client ignores Form and uses Body instead.\n\tForm url.Values\n\n\t// PostForm contains the parsed form data from PATCH, POST\n\t// or PUT body parameters.\n\t//\n\t// This field is only available after ParseForm is called.\n\t// The HTTP client ignores PostForm and uses Body instead.\n\tPostForm url.Values\n\n\t// MultipartForm is the parsed multipart form, including file uploads.\n\t// This field is only available after ParseMultipartForm is called.\n\t// The HTTP client ignores MultipartForm and uses Body instead.\n\tMultipartForm *multipart.Form\n\n\t// Trailer specifies additional headers that are sent after the request\n\t// body.\n\t//\n\t// For server requests, the Trailer map initially contains only the\n\t// trailer keys, with nil values. (The client declares which trailers it\n\t// will later send.)  While the handler is reading from Body, it must\n\t// not reference Trailer. After reading from Body returns EOF, Trailer\n\t// can be read again and will contain non-nil values, if they were sent\n\t// by the client.\n\t//\n\t// For client requests, Trailer must be initialized to a map containing\n\t// the trailer keys to later send. The values may be nil or their final\n\t// values. The ContentLength must be 0 or -1, to send a chunked request.\n\t// After the HTTP request is sent the map values can be updated while\n\t// the request body is read. Once the body returns EOF, the caller must\n\t// not mutate Trailer.\n\t//\n\t// Few HTTP clients, servers, or proxies support HTTP trailers.\n\tTrailer Header\n\n\t// RemoteAddr allows HTTP servers and other software to record\n\t// the network address that sent the request, usually for\n\t// logging. This field is not filled in by ReadRequest and\n\t// has no defined format. The HTTP server in this package\n\t// sets RemoteAddr to an \"IP:port\" address before invoking a\n\t// handler.\n\t// This field is ignored by the HTTP client.\n\tRemoteAddr string\n\n\t// RequestURI is the unmodified request-target of the\n\t// Request-Line (RFC 7230, Section 3.1.1) as sent by the client\n\t// to a server. Usually the URL field should be used instead.\n\t// It is an error to set this field in an HTTP client request.\n\tRequestURI string\n\n\t// TLS allows HTTP servers and other software to record\n\t// information about the TLS connection on which the request\n\t// was received. This field is not filled in by ReadRequest.\n\t// The HTTP server in this package sets the field for\n\t// TLS-enabled connections before invoking a handler;\n\t// otherwise it leaves the field nil.\n\t// This field is ignored by the HTTP client.\n\tTLS *tls.ConnectionState\n\n\t// Cancel is an optional channel whose closure indicates that the client\n\t// request should be regarded as canceled. Not all implementations of\n\t// RoundTripper may support Cancel.\n\t//\n\t// For server requests, this field is not applicable.\n\t//\n\t// Deprecated: Set the Request's context with NewRequestWithContext\n\t// instead. If a Request's Cancel field and context are both\n\t// set, it is undefined whether Cancel is respected.\n\tCancel \u003c-chan struct{}\n\n\t// Response is the redirect response which caused this request\n\t// to be created. This field is only populated during client\n\t// redirects.\n\tResponse *Response\n\n\t// Pattern is the [ServeMux] pattern that matched the request.\n\t// It is empty if the request was not matched against a pattern.\n\tPattern string\n\n\t// ctx is either the client or server context. It should only\n\t// be modified via copying the whole Request using Clone or WithContext.\n\t// It is unexported to prevent people from using Context wrong\n\t// and mutating the contexts held by callers of the same request.\n\tctx context.Context\n\n\t// The following fields are for requests matched by ServeMux.\n\tpat         *pattern          // the pattern that matched\n\tmatches     []string          // values for the matching wildcards in pat\n\totherValues map[string]string // for calls to SetPathValue that don't match a wildcard\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/sync/pool.go",
+          "code_snippet": "func (p *Pool) Get() any {\n\tif race.Enabled {\n\t\trace.Disable()\n\t}\n\tl, pid := p.pin()\n\tx := l.private\n\tl.private = nil\n\tif x == nil {\n\t\t// Try to pop the head of the local shard. We prefer\n\t\t// the head over the tail for temporal locality of\n\t\t// reuse.\n\t\tx, _ = l.shared.popHead()\n\t\tif x == nil {\n\t\t\tx = p.getSlow(pid)\n\t\t}\n\t}\n\truntime_procUnpin()\n\tif race.Enabled {\n\t\trace.Enable()\n\t\tif x != nil {\n\t\t\trace.Acquire(poolRaceAddr(x))\n\t\t}\n\t}\n\tif x == nil \u0026\u0026 p.New != nil {\n\t\tx = p.New()\n\t}\n\treturn x\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/sync/pool.go",
+          "code_snippet": "func (p *Pool) Put(x any) {\n\tif x == nil {\n\t\treturn\n\t}\n\tif race.Enabled {\n\t\tif runtime_randn(4) == 0 {\n\t\t\t// Randomly drop x on floor.\n\t\t\treturn\n\t\t}\n\t\trace.ReleaseMerge(poolRaceAddr(x))\n\t\trace.Disable()\n\t}\n\tl, _ := p.pin()\n\tif l.private == nil {\n\t\tl.private = x\n\t} else {\n\t\tl.shared.pushHead(x)\n\t}\n\truntime_procUnpin()\n\tif race.Enabled {\n\t\trace.Enable()\n\t}\n}",
+          "ref_module": ""
+        }
+      ],
+      "covered_lines": [
+        53,
+        54,
+        55,
+        56,
+        57,
+        59,
+        60,
+        61,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85
+      ],
+      "cover_details": {
+        "line_cover_rate": 0.7777777777777778
+      }
+    },
+    {
+      "id": "github.com/labstack/echo/v4/middleware/recover.go:RecoverWithConfig",
+      "testcases": [
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/recover_test.go",
+          "func_name": "TestRecoverErrAbortHandler"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/recover_test.go",
+          "func_name": "TestRecover"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/recover_test.go",
+          "func_name": "TestRecoverWithConfig_LogErrorFunc"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/recover_test.go",
+          "func_name": "TestRecoverWithConfig_LogLevel"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/recover_test.go",
+          "func_name": "TestRecoverWithDisabled_ErrorHandler"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/timeout_test.go",
+          "func_name": "TestTimeoutRecoversPanic"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/timeout_test.go",
+          "func_name": "TestTimeoutWithFullEchoStack"
+        }
+      ],
+      "name": "RecoverWithConfig",
+      "signature": "RecoverWithConfig (config RecoverConfig) echo.MiddlewareFunc",
+      "ground_truth": "func RecoverWithConfig(config RecoverConfig) echo.MiddlewareFunc {\n\t// Defaults\n\tif config.Skipper == nil {\n\t\tconfig.Skipper = DefaultRecoverConfig.Skipper\n\t}\n\tif config.StackSize == 0 {\n\t\tconfig.StackSize = DefaultRecoverConfig.StackSize\n\t}\n\n\treturn func(next echo.HandlerFunc) echo.HandlerFunc {\n\t\treturn func(c echo.Context) (returnErr error) {\n\t\t\tif config.Skipper(c) {\n\t\t\t\treturn next(c)\n\t\t\t}\n\n\t\t\tdefer func() {\n\t\t\t\tif r := recover(); r != nil {\n\t\t\t\t\tif r == http.ErrAbortHandler {\n\t\t\t\t\t\tpanic(r)\n\t\t\t\t\t}\n\t\t\t\t\terr, ok := r.(error)\n\t\t\t\t\tif !ok {\n\t\t\t\t\t\terr = fmt.Errorf(\"%v\", r)\n\t\t\t\t\t}\n\t\t\t\t\tvar stack []byte\n\t\t\t\t\tvar length int\n\n\t\t\t\t\tif !config.DisablePrintStack {\n\t\t\t\t\t\tstack = make([]byte, config.StackSize)\n\t\t\t\t\t\tlength = runtime.Stack(stack, !config.DisableStackAll)\n\t\t\t\t\t\tstack = stack[:length]\n\t\t\t\t\t}\n\n\t\t\t\t\tif config.LogErrorFunc != nil {\n\t\t\t\t\t\terr = config.LogErrorFunc(c, err, stack)\n\t\t\t\t\t} else if !config.DisablePrintStack {\n\t\t\t\t\t\tmsg := fmt.Sprintf(\"[PANIC RECOVER] %v %s\\n\", err, stack[:length])\n\t\t\t\t\t\tswitch config.LogLevel {\n\t\t\t\t\t\tcase log.DEBUG:\n\t\t\t\t\t\t\tc.Logger().Debug(msg)\n\t\t\t\t\t\tcase log.INFO:\n\t\t\t\t\t\t\tc.Logger().Info(msg)\n\t\t\t\t\t\tcase log.WARN:\n\t\t\t\t\t\t\tc.Logger().Warn(msg)\n\t\t\t\t\t\tcase log.ERROR:\n\t\t\t\t\t\t\tc.Logger().Error(msg)\n\t\t\t\t\t\tcase log.OFF:\n\t\t\t\t\t\t\t// None.\n\t\t\t\t\t\tdefault:\n\t\t\t\t\t\t\tc.Logger().Print(msg)\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\n\t\t\t\t\tif err != nil \u0026\u0026 !config.DisableErrorHandler {\n\t\t\t\t\t\tc.Error(err)\n\t\t\t\t\t} else {\n\t\t\t\t\t\treturnErr = err\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}()\n\t\t\treturn next(c)\n\t\t}\n\t}\n}",
+      "function_comment": "// RecoverWithConfig returns a Recover middleware with config.\n// See: `Recover()`.",
+      "function_statement": "// RecoverWithConfig returns a Recover middleware with config.\n// See: `Recover()`.",
+      "start_line": 70,
+      "end_line": 133,
+      "file_path": "./middleware/recover.go",
+      "repo_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/middleware/recover.go",
+          "code_snippet": "RecoverConfig struct {\n\t// Skipper defines a function to skip middleware.\n\tSkipper Skipper\n\n\t// Size of the stack to be printed.\n\t// Optional. Default value 4KB.\n\tStackSize int `yaml:\"stack_size\"`\n\n\t// DisableStackAll disables formatting stack traces of all other goroutines\n\t// into buffer after the trace for the current goroutine.\n\t// Optional. Default value false.\n\tDisableStackAll bool `yaml:\"disable_stack_all\"`\n\n\t// DisablePrintStack disables printing stack trace.\n\t// Optional. Default value as false.\n\tDisablePrintStack bool `yaml:\"disable_print_stack\"`\n\n\t// LogLevel is log level to printing stack trace.\n\t// Optional. Default value 0 (Print).\n\tLogLevel log.Lvl\n\n\t// LogErrorFunc defines a function for custom logging in the middleware.\n\t// If it's set you don't need to provide LogLevel for config.\n\t// If this function returns nil, the centralized HTTPErrorHandler will not be called.\n\tLogErrorFunc LogErrorFunc\n\n\t// DisableErrorHandler disables the call to centralized HTTPErrorHandler.\n\t// The recovered error is then passed back to upstream middleware, instead of swallowing the error.\n\t// Optional. Default value false.\n\tDisableErrorHandler bool `yaml:\"disable_error_handler\"`\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "MiddlewareFunc func(next HandlerFunc) HandlerFunc",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/middleware/recover.go",
+          "code_snippet": "DefaultRecoverConfig = RecoverConfig{\n\tSkipper:             DefaultSkipper,\n\tStackSize:           4 \u003c\u003c 10, // 4 KB\n\tDisableStackAll:     false,\n\tDisablePrintStack:   false,\n\tLogLevel:            0,\n\tLogErrorFunc:        nil,\n\tDisableErrorHandler: false,\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "HandlerFunc func(c Context) error",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/context.go",
+          "code_snippet": "Context interface {\n\t// Request returns `*http.Request`.\n\tRequest() *http.Request\n\n\t// SetRequest sets `*http.Request`.\n\tSetRequest(r *http.Request)\n\n\t// SetResponse sets `*Response`.\n\tSetResponse(r *Response)\n\n\t// Response returns `*Response`.\n\tResponse() *Response\n\n\t// IsTLS returns true if HTTP connection is TLS otherwise false.\n\tIsTLS() bool\n\n\t// IsWebSocket returns true if HTTP connection is WebSocket otherwise false.\n\tIsWebSocket() bool\n\n\t// Scheme returns the HTTP protocol scheme, `http` or `https`.\n\tScheme() string\n\n\t// RealIP returns the client's network address based on `X-Forwarded-For`\n\t// or `X-Real-IP` request header.\n\t// The behavior can be configured using `Echo#IPExtractor`.\n\tRealIP() string\n\n\t// Path returns the registered path for the handler.\n\tPath() string\n\n\t// SetPath sets the registered path for the handler.\n\tSetPath(p string)\n\n\t// Param returns path parameter by name.\n\tParam(name string) string\n\n\t// ParamNames returns path parameter names.\n\tParamNames() []string\n\n\t// SetParamNames sets path parameter names.\n\tSetParamNames(names ...string)\n\n\t// ParamValues returns path parameter values.\n\tParamValues() []string\n\n\t// SetParamValues sets path parameter values.\n\tSetParamValues(values ...string)\n\n\t// QueryParam returns the query param for the provided name.\n\tQueryParam(name string) string\n\n\t// QueryParams returns the query parameters as `url.Values`.\n\tQueryParams() url.Values\n\n\t// QueryString returns the URL query string.\n\tQueryString() string\n\n\t// FormValue returns the form field value for the provided name.\n\tFormValue(name string) string\n\n\t// FormParams returns the form parameters as `url.Values`.\n\tFormParams() (url.Values, error)\n\n\t// FormFile returns the multipart form file for the provided name.\n\tFormFile(name string) (*multipart.FileHeader, error)\n\n\t// MultipartForm returns the multipart form.\n\tMultipartForm() (*multipart.Form, error)\n\n\t// Cookie returns the named cookie provided in the request.\n\tCookie(name string) (*http.Cookie, error)\n\n\t// SetCookie adds a `Set-Cookie` header in HTTP response.\n\tSetCookie(cookie *http.Cookie)\n\n\t// Cookies returns the HTTP cookies sent with the request.\n\tCookies() []*http.Cookie\n\n\t// Get retrieves data from the context.\n\tGet(key string) any\n\n\t// Set saves data in the context.\n\tSet(key string, val any)\n\n\t// Bind binds path params, query params and the request body into provided type `i`. The default binder\n\t// binds body based on Content-Type header.\n\tBind(i any) error\n\n\t// Validate validates provided `i`. It is usually called after `Context#Bind()`.\n\t// Validator must be registered using `Echo#Validator`.\n\tValidate(i any) error\n\n\t// Render renders a template with data and sends a text/html response with status\n\t// code. Renderer must be registered using `Echo.Renderer`.\n\tRender(code int, name string, data any) error\n\n\t// HTML sends an HTTP response with status code.\n\tHTML(code int, html string) error\n\n\t// HTMLBlob sends an HTTP blob response with status code.\n\tHTMLBlob(code int, b []byte) error\n\n\t// String sends a string response with status code.\n\tString(code int, s string) error\n\n\t// JSON sends a JSON response with status code.\n\tJSON(code int, i any) error\n\n\t// JSONPretty sends a pretty-print JSON with status code.\n\tJSONPretty(code int, i any, indent string) error\n\n\t// JSONBlob sends a JSON blob response with status code.\n\tJSONBlob(code int, b []byte) error\n\n\t// JSONP sends a JSONP response with status code. It uses `callback` to construct\n\t// the JSONP payload.\n\tJSONP(code int, callback string, i any) error\n\n\t// JSONPBlob sends a JSONP blob response with status code. It uses `callback`\n\t// to construct the JSONP payload.\n\tJSONPBlob(code int, callback string, b []byte) error\n\n\t// XML sends an XML response with status code.\n\tXML(code int, i any) error\n\n\t// XMLPretty sends a pretty-print XML with status code.\n\tXMLPretty(code int, i any, indent string) error\n\n\t// XMLBlob sends an XML blob response with status code.\n\tXMLBlob(code int, b []byte) error\n\n\t// Blob sends a blob response with status code and content type.\n\tBlob(code int, contentType string, b []byte) error\n\n\t// Stream sends a streaming response with status code and content type.\n\tStream(code int, contentType string, r io.Reader) error\n\n\t// File sends a response with the content of the file.\n\tFile(file string) error\n\n\t// Attachment sends a response as attachment, prompting client to save the\n\t// file.\n\tAttachment(file string, name string) error\n\n\t// Inline sends a response as inline, opening the file in the browser.\n\tInline(file string, name string) error\n\n\t// NoContent sends a response with no body and a status code.\n\tNoContent(code int) error\n\n\t// Redirect redirects the request to a provided URL with status code.\n\tRedirect(code int, url string) error\n\n\t// Error invokes the registered global HTTP error handler. Generally used by middleware.\n\t// A side-effect of calling global error handler is that now Response has been committed (sent to the client) and\n\t// middlewares up in chain can not change Response status code or Response body anymore.\n\t//\n\t// Avoid using this method in handlers as no middleware will be able to effectively handle errors after that.\n\tError(err error)\n\n\t// Handler returns the matched handler by router.\n\tHandler() HandlerFunc\n\n\t// SetHandler sets the matched handler by router.\n\tSetHandler(h HandlerFunc)\n\n\t// Logger returns the `Logger` instance.\n\tLogger() Logger\n\n\t// SetLogger Set the logger\n\tSetLogger(l Logger)\n\n\t// Echo returns the `Echo` instance.\n\tEcho() *Echo\n\n\t// Reset resets the context after request completes. It must be called along\n\t// with `Echo#AcquireContext()` and `Echo#ReleaseContext()`.\n\t// See `Echo#ServeHTTP()`\n\tReset(r *http.Request, w http.ResponseWriter)\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/log.go",
+          "code_snippet": "Logger interface {\n\tOutput() io.Writer\n\tSetOutput(w io.Writer)\n\tPrefix() string\n\tSetPrefix(p string)\n\tLevel() log.Lvl\n\tSetLevel(v log.Lvl)\n\tSetHeader(h string)\n\tPrint(i ...interface{})\n\tPrintf(format string, args ...interface{})\n\tPrintj(j log.JSON)\n\tDebug(i ...interface{})\n\tDebugf(format string, args ...interface{})\n\tDebugj(j log.JSON)\n\tInfo(i ...interface{})\n\tInfof(format string, args ...interface{})\n\tInfoj(j log.JSON)\n\tWarn(i ...interface{})\n\tWarnf(format string, args ...interface{})\n\tWarnj(j log.JSON)\n\tError(i ...interface{})\n\tErrorf(format string, args ...interface{})\n\tErrorj(j log.JSON)\n\tFatal(i ...interface{})\n\tFatalj(j log.JSON)\n\tFatalf(format string, args ...interface{})\n\tPanic(i ...interface{})\n\tPanicj(j log.JSON)\n\tPanicf(format string, args ...interface{})\n}",
+          "ref_module": "v4"
+        }
+      ],
+      "third_party_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/log/log.go",
+          "code_snippet": "DEBUG Lvl = iota + 1",
+          "ref_module": "log"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/log/log.go",
+          "code_snippet": "INFO",
+          "ref_module": "log"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/log/log.go",
+          "code_snippet": "WARN",
+          "ref_module": "log"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/log/log.go",
+          "code_snippet": "ERROR",
+          "ref_module": "log"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/log/log.go",
+          "code_snippet": "OFF",
+          "ref_module": "log"
+        }
+      ],
+      "system_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "nil Type",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "error interface {\n\tError() string\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "func recover() any",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/server.go",
+          "code_snippet": "ErrAbortHandler = errors.New(\"net/http: abort Handler\")",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "func panic(v any)",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/fmt/errors.go",
+          "code_snippet": "func Errorf(format string, a ...any) error {\n\tp := newPrinter()\n\tp.wrapErrs = true\n\tp.doPrintf(format, a)\n\ts := string(p.buf)\n\tvar err error\n\tswitch len(p.wrappedErrs) {\n\tcase 0:\n\t\terr = errors.New(s)\n\tcase 1:\n\t\tw := \u0026wrapError{msg: s}\n\t\tw.err, _ = a[p.wrappedErrs[0]].(error)\n\t\terr = w\n\tdefault:\n\t\tif p.reordered {\n\t\t\tslices.Sort(p.wrappedErrs)\n\t\t}\n\t\tvar errs []error\n\t\tfor i, argNum := range p.wrappedErrs {\n\t\t\tif i \u003e 0 \u0026\u0026 p.wrappedErrs[i-1] == argNum {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif e, ok := a[argNum].(error); ok {\n\t\t\t\terrs = append(errs, e)\n\t\t\t}\n\t\t}\n\t\terr = \u0026wrapErrors{s, errs}\n\t}\n\tp.free()\n\treturn err\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "byte = uint8",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "int int",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "func make(t Type, size ...IntegerType) Type",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/runtime/mprof.go",
+          "code_snippet": "func Stack(buf []byte, all bool) int {\n\tvar stw worldStop\n\tif all {\n\t\tstw = stopTheWorld(stwAllGoroutinesStack)\n\t}\n\n\tn := 0\n\tif len(buf) \u003e 0 {\n\t\tgp := getg()\n\t\tsp := getcallersp()\n\t\tpc := getcallerpc()\n\t\tsystemstack(func() {\n\t\t\tg0 := getg()\n\t\t\t// Force traceback=1 to override GOTRACEBACK setting,\n\t\t\t// so that Stack's results are consistent.\n\t\t\t// GOTRACEBACK is only about crash dumps.\n\t\t\tg0.m.traceback = 1\n\t\t\tg0.writebuf = buf[0:0:len(buf)]\n\t\t\tgoroutineheader(gp)\n\t\t\ttraceback(pc, sp, 0, gp)\n\t\t\tif all {\n\t\t\t\ttracebackothers(gp)\n\t\t\t}\n\t\t\tg0.m.traceback = 0\n\t\t\tn = len(g0.writebuf)\n\t\t\tg0.writebuf = nil\n\t\t})\n\t}\n\n\tif all {\n\t\tstartTheWorld(stw)\n\t}\n\treturn n\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/fmt/print.go",
+          "code_snippet": "func Sprintf(format string, a ...any) string {\n\tp := newPrinter()\n\tp.doPrintf(format, a)\n\ts := string(p.buf)\n\tp.free()\n\treturn s\n}",
+          "ref_module": ""
+        }
+      ],
+      "covered_lines": [
+        70,
+        71,
+        72,
+        75,
+        79,
+        80,
+        81,
+        85,
+        86,
+        87,
+        88,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        118,
+        119,
+        123,
+        124,
+        125,
+        126,
+        127,
+        130
+      ],
+      "cover_details": {
+        "line_cover_rate": 0.703125
+      }
+    },
+    {
+      "id": "github.com/labstack/echo/v4/echo.go:New",
+      "testcases": [
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindXML"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindJSON"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindUnsupportedMediaType"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindHeaderParam"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindUnmarshalParamAnonymousFieldPtrCustomTag"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindUnmarshalParamAnonymousFieldPtrNil"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindHeaderParamBadType"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindUnmarshalTypeError"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindUnmarshalParamPtr"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindUnmarshalText"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindUnmarshalTextPtr"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindQueryParamsCaseSensitivePrioritized"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestToMultipleFields"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindQueryParams"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindMultipartForm"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindUnmarshalParamAnonymousFieldPtr"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindQueryParamsCaseInsensitive"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindForm"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindUnmarshalParam"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindParam"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindUnmarshalParams"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindUnmarshalParamExtras"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_CustomFuncWithError"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestDefaultBinder_BindBody"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindMultipartFormFiles"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestDefaultBinder_BindToStructFromMixedSources"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_CustomFunc"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_GetValues"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestBindInt8"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "bind_test.go",
+          "func_name": "TestTimeFormatBinding"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_errorStopsBinding"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_BindError"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestPathParamsBinder"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestQueryParamsBinder_FailFast"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestFormFieldBinder"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_MustCustomFunc"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_String"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Strings"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Int64_intValue"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Int_errorMessage"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Uint64_uintValue"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Bool"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Float64"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Int64s_intsValue"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Uint64s_uintsValue"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Time"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Float32"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Duration"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Bools"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Times"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_BindUnmarshaler"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Float64s"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Durations"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Float32s"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_JSONUnmarshaler"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Int_Types"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_TextUnmarshaler"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextEcho"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_fs_test.go",
+          "func_name": "TestContext_File"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_fs_test.go",
+          "func_name": "TestContext_FileFS"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextRequest"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextResponse"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextRenderErrorsOnNoRenderer"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextRenderTemplate"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextJSON"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestBindWithDelimiter_invalidType"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_TimeError"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextJSONPretty"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextJSONWithEmptyIntent"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_UnixTime"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextJSONErrorsOut"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_DurationError"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextJSONPrettyURL"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_UnixTimeMilli"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextJSONP"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_UnixTimeNano"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_BindWithDelimiter"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextJSONBlob"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_TimesError"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextJSONPBlob"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_DurationsError"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextXML"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextXMLPrettyURL"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Ints_Types_FailFast"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextXMLBlob"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextXMLWithEmptyIntent"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextXMLPretty"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_Ints_Types"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextStream"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextString"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextHTML"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextNoContent"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextAttachment"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextXMLError"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextInline"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContext_JSON_CommitsCustomResponseCode"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextCookie"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContext_JSON_DoesntCommitResponseCodePrematurely"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextReset"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextError"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextPathParam"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextMultipartForm"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextQueryParam"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextFormFile"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextFormValue"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextRedirect"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContext_Validate"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContext_QueryString"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_fs_test.go",
+          "func_name": "TestEcho_StaticPanic"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContext_Logger"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContext_Bind"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "binder_test.go",
+          "func_name": "TestValueBinder_BindWithDelimiter_types"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoWrapHandler"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoWrapMiddleware"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextHandler"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextGetAndSetParam"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextSetParamNamesEchoMaxParam"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "context_test.go",
+          "func_name": "TestContextPath"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoHandler"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoMiddleware"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoConnect"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoDelete"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoMiddlewareError"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoGet"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoFile"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_fs_test.go",
+          "func_name": "TestEcho_FileFS"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoHead"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoOptions"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoPatch"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoMatch"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoPost"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoPut"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoAny"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoContext"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_fs_test.go",
+          "func_name": "TestEcho_StaticFS"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoStaticRedirectIndex"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoStatic"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoTrace"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoStart"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_StartAutoTLS"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoStartTLSByteString"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_StartTLS"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_StartH2CServer"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoClose"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoShutdown"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoNotFound"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_ListenerAddr"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoURL"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoRoutes"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoListenerNetworkInvalid"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_TLSListenerAddr"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoRoutesHandleDefaultHost"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoRoutesHandleAdditionalHosts"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "group_fs_test.go",
+          "func_name": "TestGroup_StaticPanic"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_StartServer"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoMethodNotAllowed"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoHost"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_OnAddRouteHandler"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoStartTLSAndStart"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "json_test.go",
+          "func_name": "TestDefaultJSONCodec_Encode"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "json_test.go",
+          "func_name": "TestDefaultJSONCodec_Decode"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "renderer_test.go",
+          "func_name": "TestRenderWithTemplateRenderer"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoGroup"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoListenerNetwork"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "response_test.go",
+          "func_name": "TestResponse"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "response_test.go",
+          "func_name": "TestResponse_Write_FallsBackToDefaultStatus"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoReverseHandleHostProperly"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "response_test.go",
+          "func_name": "TestResponse_Flush"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "response_test.go",
+          "func_name": "TestResponse_Write_UsesSetResponseCode"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoServeHTTPPathEncoding"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "response_test.go",
+          "func_name": "TestResponse_FlushPanics"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "response_test.go",
+          "func_name": "TestResponse_ChangeStatusCodeBeforeWrite"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "response_test.go",
+          "func_name": "TestResponse_Unwrap"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_RouteNotFound"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEchoReverse"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "group_fs_test.go",
+          "func_name": "TestGroup_FileFS"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "group_test.go",
+          "func_name": "TestGroupFile"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "group_test.go",
+          "func_name": "TestGroup"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterNoRoutablePath"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestDefaultHTTPErrorHandler"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterStatic"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "group_test.go",
+          "func_name": "TestGroupRouteMiddleware"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterParam"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "group_test.go",
+          "func_name": "TestGroupRouteMiddlewareWithMatchAny"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterTwoParam"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterOptionsMethodHandler"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "group_test.go",
+          "func_name": "TestGroup_RouteNotFound"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "group_test.go",
+          "func_name": "TestGroup_RouteNotFoundWithMiddleware"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterParamWithSlash"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestMethodNotAllowedAndNotFound"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestNotFoundRouteAnyKind"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouter_notFoundRouteWithNodeSplitting"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouteMultiLevelBacktracking"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestNotFoundRouteStaticKind"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouteMultiLevelBacktracking2"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouter_addAndMatchAllSupportedMethods"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterBacktrackingFromMultipleParamKinds"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestNotFoundRouteParamKind"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterMatchAny"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterParamStaticConflict"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterAnyMatchesLastAddedAnyRoute"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterMatchAnyPrefixIssue"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterParam_escapeColon"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterIssue1348"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterMicroParam"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterMixParamMatchAny"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterMatchAnyMultiLevel"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterMatchAnySlash"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterMultiRoute"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterPriorityNotFound"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterParamNames"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterParamOrdering"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterMixedParams"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterMatchAnyMultiLevelWithPost"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouter_addEmptyPathToSlashReverse"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterParamAlias"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouter_ReverseNotFound"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterPriority"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterStaticDynamicConflict"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterParamBacktraceNotFound"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterGitHubAPI"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouter_Routes"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterParam1466"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterAllowHeaderForAnyOtherMethodType"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouter_Reverse"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterFindNotPanicOrLoopsWhenContextSetParamValuesIsCalledWithLessValuesThanEchoMaxParam"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterDifferentParamsInPath"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterPanicWhenParamNoRootOnlyChildsFailsFind"
+        },
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "router_test.go",
+          "func_name": "TestRouterHandleMethodOptions"
+        }
+      ],
+      "name": "New",
+      "signature": "New () (e *Echo)",
+      "ground_truth": "func New() (e *Echo) {\n\te = \u0026Echo{\n\t\tfilesystem: createFilesystem(),\n\t\tServer:     new(http.Server),\n\t\tTLSServer:  new(http.Server),\n\t\tAutoTLSManager: autocert.Manager{\n\t\t\tPrompt: autocert.AcceptTOS,\n\t\t},\n\t\tLogger:          log.New(\"echo\"),\n\t\tcolorer:         color.New(),\n\t\tmaxParam:        new(int),\n\t\tListenerNetwork: \"tcp\",\n\t}\n\te.Server.Handler = e\n\te.TLSServer.Handler = e\n\te.HTTPErrorHandler = e.DefaultHTTPErrorHandler\n\te.Binder = \u0026DefaultBinder{}\n\te.JSONSerializer = \u0026DefaultJSONSerializer{}\n\te.Logger.SetLevel(log.ERROR)\n\te.StdLogger = stdLog.New(e.Logger.Output(), e.Logger.Prefix()+\": \", 0)\n\te.pool.New = func() interface{} {\n\t\treturn e.NewContext(nil, nil)\n\t}\n\te.router = NewRouter(e)\n\te.routers = map[string]*Router{}\n\treturn\n}",
+      "function_comment": "// New creates an instance of Echo.",
+      "function_statement": "// New creates an instance of Echo.",
+      "start_line": 361,
+      "end_line": 387,
+      "file_path": "./echo.go",
+      "repo_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "Echo struct {\n\tfilesystem\n\tcommon\n\t// startupMutex is mutex to lock Echo instance access during server configuration and startup. Useful for to get\n\t// listener address info (on which interface/port was listener bound) without having data races.\n\tstartupMutex sync.RWMutex\n\tcolorer      *color.Color\n\n\t// premiddleware are middlewares that are run before routing is done. In case a pre-middleware returns\n\t// an error the router is not executed and the request will end up in the global error handler.\n\tpremiddleware []MiddlewareFunc\n\tmiddleware    []MiddlewareFunc\n\tmaxParam      *int\n\trouter        *Router\n\trouters       map[string]*Router\n\tpool          sync.Pool\n\n\tStdLogger        *stdLog.Logger\n\tServer           *http.Server\n\tTLSServer        *http.Server\n\tListener         net.Listener\n\tTLSListener      net.Listener\n\tAutoTLSManager   autocert.Manager\n\tHTTPErrorHandler HTTPErrorHandler\n\tBinder           Binder\n\tJSONSerializer   JSONSerializer\n\tValidator        Validator\n\tRenderer         Renderer\n\tLogger           Logger\n\tIPExtractor      IPExtractor\n\tListenerNetwork  string\n\n\t// OnAddRouteHandler is called when Echo adds new route to specific host router.\n\tOnAddRouteHandler func(host string, route Route, handler HandlerFunc, middleware []MiddlewareFunc)\n\tDisableHTTP2      bool\n\tDebug             bool\n\tHideBanner        bool\n\tHidePort          bool\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo_fs.go",
+          "code_snippet": "func createFilesystem() filesystem {\n\treturn filesystem{\n\t\tFilesystem: newDefaultFS(),\n\t}\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "func (e *Echo) DefaultHTTPErrorHandler(err error, c Context) {\n\n\tif c.Response().Committed {\n\t\treturn\n\t}\n\n\the, ok := err.(*HTTPError)\n\tif ok {\n\t\tif he.Internal != nil {\n\t\t\tif herr, ok := he.Internal.(*HTTPError); ok {\n\t\t\t\the = herr\n\t\t\t}\n\t\t}\n\t} else {\n\t\the = \u0026HTTPError{\n\t\t\tCode:    http.StatusInternalServerError,\n\t\t\tMessage: http.StatusText(http.StatusInternalServerError),\n\t\t}\n\t}\n\n\t// Issue #1426\n\tcode := he.Code\n\tmessage := he.Message\n\n\tswitch m := he.Message.(type) {\n\tcase string:\n\t\tif e.Debug {\n\t\t\tmessage = Map{\"message\": m, \"error\": err.Error()}\n\t\t} else {\n\t\t\tmessage = Map{\"message\": m}\n\t\t}\n\tcase json.Marshaler:\n\t\t// do nothing - this type knows how to format itself to JSON\n\tcase error:\n\t\tmessage = Map{\"message\": m.Error()}\n\t}\n\n\t// Send response\n\tif c.Request().Method == http.MethodHead { // Issue #608\n\t\terr = c.NoContent(he.Code)\n\t} else {\n\t\terr = c.JSON(code, message)\n\t}\n\tif err != nil {\n\t\te.Logger.Error(err)\n\t}\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/bind.go",
+          "code_snippet": "DefaultBinder struct{}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/json.go",
+          "code_snippet": "DefaultJSONSerializer struct{}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/log.go",
+          "code_snippet": "Logger interface {\n\tOutput() io.Writer\n\tSetOutput(w io.Writer)\n\tPrefix() string\n\tSetPrefix(p string)\n\tLevel() log.Lvl\n\tSetLevel(v log.Lvl)\n\tSetHeader(h string)\n\tPrint(i ...interface{})\n\tPrintf(format string, args ...interface{})\n\tPrintj(j log.JSON)\n\tDebug(i ...interface{})\n\tDebugf(format string, args ...interface{})\n\tDebugj(j log.JSON)\n\tInfo(i ...interface{})\n\tInfof(format string, args ...interface{})\n\tInfoj(j log.JSON)\n\tWarn(i ...interface{})\n\tWarnf(format string, args ...interface{})\n\tWarnj(j log.JSON)\n\tError(i ...interface{})\n\tErrorf(format string, args ...interface{})\n\tErrorj(j log.JSON)\n\tFatal(i ...interface{})\n\tFatalj(j log.JSON)\n\tFatalf(format string, args ...interface{})\n\tPanic(i ...interface{})\n\tPanicj(j log.JSON)\n\tPanicf(format string, args ...interface{})\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "func (e *Echo) NewContext(r *http.Request, w http.ResponseWriter) Context {\n\treturn \u0026context{\n\t\trequest:  r,\n\t\tresponse: NewResponse(w, e),\n\t\tstore:    make(Map),\n\t\techo:     e,\n\t\tpvalues:  make([]string, *e.maxParam),\n\t\thandler:  NotFoundHandler,\n\t}\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/router.go",
+          "code_snippet": "func NewRouter(e *Echo) *Router {\n\treturn \u0026Router{\n\t\ttree: \u0026node{\n\t\t\tmethods: new(routeMethods),\n\t\t},\n\t\troutes: map[string]*Route{},\n\t\techo:   e,\n\t}\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/router.go",
+          "code_snippet": "Router struct {\n\ttree   *node\n\troutes map[string]*Route\n\techo   *Echo\n}",
+          "ref_module": "v4"
+        }
+      ],
+      "third_party_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/log/log.go",
+          "code_snippet": "func New(prefix string) (l *Logger) {\n\tl = \u0026Logger{\n\t\tlevel:    uint32(INFO),\n\t\tskip:     2,\n\t\tprefix:   prefix,\n\t\ttemplate: l.newTemplate(defaultHeader),\n\t\tcolor:    color.New(),\n\t\tbufferPool: sync.Pool{\n\t\t\tNew: func() interface{} {\n\t\t\t\treturn bytes.NewBuffer(make([]byte, 256))\n\t\t\t},\n\t\t},\n\t}\n\tl.initLevels()\n\tl.SetOutput(output())\n\treturn\n}",
+          "ref_module": "log"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func New() (c *Color) {\n\tc = new(Color)\n\tc.SetOutput(colorable.NewColorableStdout())\n\treturn\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/log/log.go",
+          "code_snippet": "ERROR",
+          "ref_module": "log"
+        }
+      ],
+      "system_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "func new(Type) *Type",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/server.go",
+          "code_snippet": "Server struct {\n\t// Addr optionally specifies the TCP address for the server to listen on,\n\t// in the form \"host:port\". If empty, \":http\" (port 80) is used.\n\t// The service names are defined in RFC 6335 and assigned by IANA.\n\t// See net.Dial for details of the address format.\n\tAddr string\n\n\tHandler Handler // handler to invoke, http.DefaultServeMux if nil\n\n\t// DisableGeneralOptionsHandler, if true, passes \"OPTIONS *\" requests to the Handler,\n\t// otherwise responds with 200 OK and Content-Length: 0.\n\tDisableGeneralOptionsHandler bool\n\n\t// TLSConfig optionally provides a TLS configuration for use\n\t// by ServeTLS and ListenAndServeTLS. Note that this value is\n\t// cloned by ServeTLS and ListenAndServeTLS, so it's not\n\t// possible to modify the configuration with methods like\n\t// tls.Config.SetSessionTicketKeys. To use\n\t// SetSessionTicketKeys, use Server.Serve with a TLS Listener\n\t// instead.\n\tTLSConfig *tls.Config\n\n\t// ReadTimeout is the maximum duration for reading the entire\n\t// request, including the body. A zero or negative value means\n\t// there will be no timeout.\n\t//\n\t// Because ReadTimeout does not let Handlers make per-request\n\t// decisions on each request body's acceptable deadline or\n\t// upload rate, most users will prefer to use\n\t// ReadHeaderTimeout. It is valid to use them both.\n\tReadTimeout time.Duration\n\n\t// ReadHeaderTimeout is the amount of time allowed to read\n\t// request headers. The connection's read deadline is reset\n\t// after reading the headers and the Handler can decide what\n\t// is considered too slow for the body. If zero, the value of\n\t// ReadTimeout is used. If negative, or if zero and ReadTimeout\n\t// is zero or negative, there is no timeout.\n\tReadHeaderTimeout time.Duration\n\n\t// WriteTimeout is the maximum duration before timing out\n\t// writes of the response. It is reset whenever a new\n\t// request's header is read. Like ReadTimeout, it does not\n\t// let Handlers make decisions on a per-request basis.\n\t// A zero or negative value means there will be no timeout.\n\tWriteTimeout time.Duration\n\n\t// IdleTimeout is the maximum amount of time to wait for the\n\t// next request when keep-alives are enabled. If zero, the value\n\t// of ReadTimeout is used. If negative, or if zero and ReadTimeout\n\t// is zero or negative, there is no timeout.\n\tIdleTimeout time.Duration\n\n\t// MaxHeaderBytes controls the maximum number of bytes the\n\t// server will read parsing the request header's keys and\n\t// values, including the request line. It does not limit the\n\t// size of the request body.\n\t// If zero, DefaultMaxHeaderBytes is used.\n\tMaxHeaderBytes int\n\n\t// TLSNextProto optionally specifies a function to take over\n\t// ownership of the provided TLS connection when an ALPN\n\t// protocol upgrade has occurred. The map key is the protocol\n\t// name negotiated. The Handler argument should be used to\n\t// handle HTTP requests and will initialize the Request's TLS\n\t// and RemoteAddr if not already set. The connection is\n\t// automatically closed when the function returns.\n\t// If TLSNextProto is not nil, HTTP/2 support is not enabled\n\t// automatically.\n\tTLSNextProto map[string]func(*Server, *tls.Conn, Handler)\n\n\t// ConnState specifies an optional callback function that is\n\t// called when a client connection changes state. See the\n\t// ConnState type and associated constants for details.\n\tConnState func(net.Conn, ConnState)\n\n\t// ErrorLog specifies an optional logger for errors accepting\n\t// connections, unexpected behavior from handlers, and\n\t// underlying FileSystem errors.\n\t// If nil, logging is done via the log package's standard logger.\n\tErrorLog *log.Logger\n\n\t// BaseContext optionally specifies a function that returns\n\t// the base context for incoming requests on this server.\n\t// The provided Listener is the specific Listener that's\n\t// about to start accepting requests.\n\t// If BaseContext is nil, the default is context.Background().\n\t// If non-nil, it must return a non-nil context.\n\tBaseContext func(net.Listener) context.Context\n\n\t// ConnContext optionally specifies a function that modifies\n\t// the context used for a new connection c. The provided ctx\n\t// is derived from the base context and has a ServerContextKey\n\t// value.\n\tConnContext func(ctx context.Context, c net.Conn) context.Context\n\n\tinShutdown atomic.Bool // true when server is in shutdown\n\n\tdisableKeepAlives atomic.Bool\n\tnextProtoOnce     sync.Once // guards setupHTTP2_* init\n\tnextProtoErr      error     // result of http2.ConfigureServer if used\n\n\tmu         sync.Mutex\n\tlisteners  map[*net.Listener]struct{}\n\tactiveConn map[*conn]struct{}\n\tonShutdown []func()\n\n\tlistenerGroup sync.WaitGroup\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/x/crypto@v0.41.0/acme/autocert/autocert.go",
+          "code_snippet": "Manager struct {\n\t// Prompt specifies a callback function to conditionally accept a CA's Terms of Service (TOS).\n\t// The registration may require the caller to agree to the CA's TOS.\n\t// If so, Manager calls Prompt with a TOS URL provided by the CA. Prompt should report\n\t// whether the caller agrees to the terms.\n\t//\n\t// To always accept the terms, the callers can use AcceptTOS.\n\tPrompt func(tosURL string) bool\n\n\t// Cache optionally stores and retrieves previously-obtained certificates\n\t// and other state. If nil, certs will only be cached for the lifetime of\n\t// the Manager. Multiple Managers can share the same Cache.\n\t//\n\t// Using a persistent Cache, such as DirCache, is strongly recommended.\n\tCache Cache\n\n\t// HostPolicy controls which domains the Manager will attempt\n\t// to retrieve new certificates for. It does not affect cached certs.\n\t//\n\t// If non-nil, HostPolicy is called before requesting a new cert.\n\t// If nil, all hosts are currently allowed. This is not recommended,\n\t// as it opens a potential attack where clients connect to a server\n\t// by IP address and pretend to be asking for an incorrect host name.\n\t// Manager will attempt to obtain a certificate for that host, incorrectly,\n\t// eventually reaching the CA's rate limit for certificate requests\n\t// and making it impossible to obtain actual certificates.\n\t//\n\t// See GetCertificate for more details.\n\tHostPolicy HostPolicy\n\n\t// RenewBefore optionally specifies how early certificates should\n\t// be renewed before they expire.\n\t//\n\t// If zero, they're renewed 30 days before expiration.\n\tRenewBefore time.Duration\n\n\t// Client is used to perform low-level operations, such as account registration\n\t// and requesting new certificates.\n\t//\n\t// If Client is nil, a zero-value acme.Client is used with DefaultACMEDirectory\n\t// as the directory endpoint.\n\t// If the Client.Key is nil, a new ECDSA P-256 key is generated and,\n\t// if Cache is not nil, stored in cache.\n\t//\n\t// Mutating the field after the first call of GetCertificate method will have no effect.\n\tClient *acme.Client\n\n\t// Email optionally specifies a contact email address.\n\t// This is used by CAs, such as Let's Encrypt, to notify about problems\n\t// with issued certificates.\n\t//\n\t// If the Client's account key is already registered, Email is not used.\n\tEmail string\n\n\t// ForceRSA used to make the Manager generate RSA certificates. It is now ignored.\n\t//\n\t// Deprecated: the Manager will request the correct type of certificate based\n\t// on what each client supports.\n\tForceRSA bool\n\n\t// ExtraExtensions are used when generating a new CSR (Certificate Request),\n\t// thus allowing customization of the resulting certificate.\n\t// For instance, TLS Feature Extension (RFC 7633) can be used\n\t// to prevent an OCSP downgrade attack.\n\t//\n\t// The field value is passed to crypto/x509.CreateCertificateRequest\n\t// in the template's ExtraExtensions field as is.\n\tExtraExtensions []pkix.Extension\n\n\t// ExternalAccountBinding optionally represents an arbitrary binding to an\n\t// account of the CA to which the ACME server is tied.\n\t// See RFC 8555, Section 7.3.4 for more details.\n\tExternalAccountBinding *acme.ExternalAccountBinding\n\n\tclientMu sync.Mutex\n\tclient   *acme.Client // initialized by acmeClient method\n\n\tstateMu sync.Mutex\n\tstate   map[certKey]*certState\n\n\t// renewal tracks the set of domains currently running renewal timers.\n\trenewalMu sync.Mutex\n\trenewal   map[certKey]*domainRenewal\n\n\t// challengeMu guards tryHTTP01, certTokens and httpTokens.\n\tchallengeMu sync.RWMutex\n\t// tryHTTP01 indicates whether the Manager should try \"http-01\" challenge type\n\t// during the authorization flow.\n\ttryHTTP01 bool\n\t// httpTokens contains response body values for http-01 challenges\n\t// and is keyed by the URL path at which a challenge response is expected\n\t// to be provisioned.\n\t// The entries are stored for the duration of the authorization flow.\n\thttpTokens map[string][]byte\n\t// certTokens contains temporary certificates for tls-alpn-01 challenges\n\t// and is keyed by the domain name which matches the ClientHello server name.\n\t// The entries are stored for the duration of the authorization flow.\n\tcertTokens map[string]*tls.Certificate\n\n\t// nowFunc, if not nil, returns the current time. This may be set for\n\t// testing purposes.\n\tnowFunc func() time.Time\n}",
+          "ref_module": "autocert"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/x/crypto@v0.41.0/acme/autocert/autocert.go",
+          "code_snippet": "func AcceptTOS(tosURL string) bool { return true }",
+          "ref_module": "autocert"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "int int",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/log/log.go",
+          "code_snippet": "func New(out io.Writer, prefix string, flag int) *Logger {\n\tl := new(Logger)\n\tl.SetOutput(out)\n\tl.SetPrefix(prefix)\n\tl.SetFlags(flag)\n\treturn l\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/sync/pool.go",
+          "code_snippet": "Pool struct {\n\tnoCopy noCopy\n\n\tlocal     unsafe.Pointer // local fixed-size per-P pool, actual type is [P]poolLocal\n\tlocalSize uintptr        // size of the local array\n\n\tvictim     unsafe.Pointer // local from previous cycle\n\tvictimSize uintptr        // size of victims array\n\n\t// New optionally specifies a function to generate\n\t// a value when Get would otherwise return nil.\n\t// It may not be changed concurrently with calls to Get.\n\tNew func() any\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "nil Type",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "string string",
+          "ref_module": ""
+        }
+      ],
+      "covered_lines": [
+        361,
+        362,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374,
+        375,
+        376,
+        377,
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386
+      ],
+      "cover_details": {
+        "line_cover_rate": 0.9629629629629629
+      }
+    },
+    {
+      "id": "github.com/labstack/echo/v4/echo.go:StartH2CServer",
+      "testcases": [
+        {
+          "package": "github.com/labstack/echo/v4",
+          "rel_file_path": "echo_test.go",
+          "func_name": "TestEcho_StartH2CServer"
+        }
+      ],
+      "name": "StartH2CServer",
+      "signature": "(e *Echo) StartH2CServer (address string, h2s *http2.Server) error",
+      "ground_truth": "func (e *Echo) StartH2CServer(address string, h2s *http2.Server) error {\n\te.startupMutex.Lock()\n\t// Setup\n\ts := e.Server\n\ts.Addr = address\n\te.colorer.SetOutput(e.Logger.Output())\n\ts.ErrorLog = e.StdLogger\n\ts.Handler = h2c.NewHandler(e, h2s)\n\tif e.Debug {\n\t\te.Logger.SetLevel(log.DEBUG)\n\t}\n\n\tif !e.HideBanner {\n\t\te.colorer.Printf(banner, e.colorer.Red(\"v\"+Version), e.colorer.Blue(website))\n\t}\n\n\tif e.Listener == nil {\n\t\tl, err := newListener(s.Addr, e.ListenerNetwork)\n\t\tif err != nil {\n\t\t\te.startupMutex.Unlock()\n\t\t\treturn err\n\t\t}\n\t\te.Listener = l\n\t}\n\tif !e.HidePort {\n\t\te.colorer.Printf(\"⇨ http server started on %s\\n\", e.colorer.Green(e.Listener.Addr()))\n\t}\n\te.startupMutex.Unlock()\n\treturn s.Serve(e.Listener)\n}",
+      "function_comment": "// StartH2CServer starts a custom http/2 server with h2c (HTTP/2 Cleartext).",
+      "function_statement": "// StartH2CServer starts a custom http/2 server with h2c (HTTP/2 Cleartext).",
+      "start_line": 833,
+      "end_line": 862,
+      "file_path": "./echo.go",
+      "repo_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "Echo struct {\n\tfilesystem\n\tcommon\n\t// startupMutex is mutex to lock Echo instance access during server configuration and startup. Useful for to get\n\t// listener address info (on which interface/port was listener bound) without having data races.\n\tstartupMutex sync.RWMutex\n\tcolorer      *color.Color\n\n\t// premiddleware are middlewares that are run before routing is done. In case a pre-middleware returns\n\t// an error the router is not executed and the request will end up in the global error handler.\n\tpremiddleware []MiddlewareFunc\n\tmiddleware    []MiddlewareFunc\n\tmaxParam      *int\n\trouter        *Router\n\trouters       map[string]*Router\n\tpool          sync.Pool\n\n\tStdLogger        *stdLog.Logger\n\tServer           *http.Server\n\tTLSServer        *http.Server\n\tListener         net.Listener\n\tTLSListener      net.Listener\n\tAutoTLSManager   autocert.Manager\n\tHTTPErrorHandler HTTPErrorHandler\n\tBinder           Binder\n\tJSONSerializer   JSONSerializer\n\tValidator        Validator\n\tRenderer         Renderer\n\tLogger           Logger\n\tIPExtractor      IPExtractor\n\tListenerNetwork  string\n\n\t// OnAddRouteHandler is called when Echo adds new route to specific host router.\n\tOnAddRouteHandler func(host string, route Route, handler HandlerFunc, middleware []MiddlewareFunc)\n\tDisableHTTP2      bool\n\tDebug             bool\n\tHideBanner        bool\n\tHidePort          bool\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/log.go",
+          "code_snippet": "Logger interface {\n\tOutput() io.Writer\n\tSetOutput(w io.Writer)\n\tPrefix() string\n\tSetPrefix(p string)\n\tLevel() log.Lvl\n\tSetLevel(v log.Lvl)\n\tSetHeader(h string)\n\tPrint(i ...interface{})\n\tPrintf(format string, args ...interface{})\n\tPrintj(j log.JSON)\n\tDebug(i ...interface{})\n\tDebugf(format string, args ...interface{})\n\tDebugj(j log.JSON)\n\tInfo(i ...interface{})\n\tInfof(format string, args ...interface{})\n\tInfoj(j log.JSON)\n\tWarn(i ...interface{})\n\tWarnf(format string, args ...interface{})\n\tWarnj(j log.JSON)\n\tError(i ...interface{})\n\tErrorf(format string, args ...interface{})\n\tErrorj(j log.JSON)\n\tFatal(i ...interface{})\n\tFatalj(j log.JSON)\n\tFatalf(format string, args ...interface{})\n\tPanic(i ...interface{})\n\tPanicj(j log.JSON)\n\tPanicf(format string, args ...interface{})\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "banner = `\n   ____    __\n  / __/___/ /  ___\n / _// __/ _ \\/ _ \\\n/___/\\__/_//_/\\___/ %s\nHigh performance, minimalist Go web framework\n%s\n____________________________________O/_______\n                                    O\\\n`",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "Version = \"4.13.4\"",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "website = \"https://echo.labstack.com\"",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "func newListener(address, network string) (*tcpKeepAliveListener, error) {\n\tif network != \"tcp\" \u0026\u0026 network != \"tcp4\" \u0026\u0026 network != \"tcp6\" {\n\t\treturn nil, ErrInvalidListenerNetwork\n\t}\n\tl, err := net.Listen(network, address)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\treturn \u0026tcpKeepAliveListener{l.(*net.TCPListener)}, nil\n}",
+          "ref_module": ""
+        }
+      ],
+      "third_party_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) SetOutput(w io.Writer) {\n\tc.output = w\n\tif w, ok := w.(*os.File); !ok || !isatty.IsTerminal(w.Fd()) {\n\t\tc.disabled = true\n\t}\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/log/log.go",
+          "code_snippet": "DEBUG Lvl = iota + 1",
+          "ref_module": "log"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Printf(format string, args ...interface{}) {\n\tfmt.Fprintf(c.output, format, args...)\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Red(msg interface{}, styles ...string) string {\n\treturn red(msg, styles, c)\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Blue(msg interface{}, styles ...string) string {\n\treturn blue(msg, styles, c)\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Green(msg interface{}, styles ...string) string {\n\treturn green(msg, styles, c)\n}",
+          "ref_module": "color"
+        }
+      ],
+      "system_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "string string",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/x/net@v0.43.0/http2/server.go",
+          "code_snippet": "Server struct {\n\t// MaxHandlers limits the number of http.Handler ServeHTTP goroutines\n\t// which may run at a time over all connections.\n\t// Negative or zero no limit.\n\t// TODO: implement\n\tMaxHandlers int\n\n\t// MaxConcurrentStreams optionally specifies the number of\n\t// concurrent streams that each client may have open at a\n\t// time. This is unrelated to the number of http.Handler goroutines\n\t// which may be active globally, which is MaxHandlers.\n\t// If zero, MaxConcurrentStreams defaults to at least 100, per\n\t// the HTTP/2 spec's recommendations.\n\tMaxConcurrentStreams uint32\n\n\t// MaxDecoderHeaderTableSize optionally specifies the http2\n\t// SETTINGS_HEADER_TABLE_SIZE to send in the initial settings frame. It\n\t// informs the remote endpoint of the maximum size of the header compression\n\t// table used to decode header blocks, in octets. If zero, the default value\n\t// of 4096 is used.\n\tMaxDecoderHeaderTableSize uint32\n\n\t// MaxEncoderHeaderTableSize optionally specifies an upper limit for the\n\t// header compression table used for encoding request headers. Received\n\t// SETTINGS_HEADER_TABLE_SIZE settings are capped at this limit. If zero,\n\t// the default value of 4096 is used.\n\tMaxEncoderHeaderTableSize uint32\n\n\t// MaxReadFrameSize optionally specifies the largest frame\n\t// this server is willing to read. A valid value is between\n\t// 16k and 16M, inclusive. If zero or otherwise invalid, a\n\t// default value is used.\n\tMaxReadFrameSize uint32\n\n\t// PermitProhibitedCipherSuites, if true, permits the use of\n\t// cipher suites prohibited by the HTTP/2 spec.\n\tPermitProhibitedCipherSuites bool\n\n\t// IdleTimeout specifies how long until idle clients should be\n\t// closed with a GOAWAY frame. PING frames are not considered\n\t// activity for the purposes of IdleTimeout.\n\t// If zero or negative, there is no timeout.\n\tIdleTimeout time.Duration\n\n\t// ReadIdleTimeout is the timeout after which a health check using a ping\n\t// frame will be carried out if no frame is received on the connection.\n\t// If zero, no health check is performed.\n\tReadIdleTimeout time.Duration\n\n\t// PingTimeout is the timeout after which the connection will be closed\n\t// if a response to a ping is not received.\n\t// If zero, a default of 15 seconds is used.\n\tPingTimeout time.Duration\n\n\t// WriteByteTimeout is the timeout after which a connection will be\n\t// closed if no data can be written to it. The timeout begins when data is\n\t// available to write, and is extended whenever any bytes are written.\n\t// If zero or negative, there is no timeout.\n\tWriteByteTimeout time.Duration\n\n\t// MaxUploadBufferPerConnection is the size of the initial flow\n\t// control window for each connections. The HTTP/2 spec does not\n\t// allow this to be smaller than 65535 or larger than 2^32-1.\n\t// If the value is outside this range, a default value will be\n\t// used instead.\n\tMaxUploadBufferPerConnection int32\n\n\t// MaxUploadBufferPerStream is the size of the initial flow control\n\t// window for each stream. The HTTP/2 spec does not allow this to\n\t// be larger than 2^32-1. If the value is zero or larger than the\n\t// maximum, a default value will be used instead.\n\tMaxUploadBufferPerStream int32\n\n\t// NewWriteScheduler constructs a write scheduler for a connection.\n\t// If nil, a default scheduler is chosen.\n\tNewWriteScheduler func() WriteScheduler\n\n\t// CountError, if non-nil, is called on HTTP/2 server errors.\n\t// It's intended to increment a metric for monitoring, such\n\t// as an expvar or Prometheus metric.\n\t// The errType consists of only ASCII word characters.\n\tCountError func(errType string)\n\n\t// Internal state. This is a pointer (rather than embedded directly)\n\t// so that we don't embed a Mutex in this struct, which will make the\n\t// struct non-copyable, which might break some callers.\n\tstate *serverInternalState\n\n\t// Synchronization group used for testing.\n\t// Outside of tests, this is nil.\n\tgroup synctestGroupInterface\n}",
+          "ref_module": "http2"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "error interface {\n\tError() string\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/sync/rwmutex.go",
+          "code_snippet": "func (rw *RWMutex) Lock() {\n\tif race.Enabled {\n\t\t_ = rw.w.state\n\t\trace.Disable()\n\t}\n\t// First, resolve competition with other writers.\n\trw.w.Lock()\n\t// Announce to readers there is a pending writer.\n\tr := rw.readerCount.Add(-rwmutexMaxReaders) + rwmutexMaxReaders\n\t// Wait for active readers.\n\tif r != 0 \u0026\u0026 rw.readerWait.Add(r) != 0 {\n\t\truntime_SemacquireRWMutex(\u0026rw.writerSem, false, 0)\n\t}\n\tif race.Enabled {\n\t\trace.Enable()\n\t\trace.Acquire(unsafe.Pointer(\u0026rw.readerSem))\n\t\trace.Acquire(unsafe.Pointer(\u0026rw.writerSem))\n\t}\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/server.go",
+          "code_snippet": "Server struct {\n\t// Addr optionally specifies the TCP address for the server to listen on,\n\t// in the form \"host:port\". If empty, \":http\" (port 80) is used.\n\t// The service names are defined in RFC 6335 and assigned by IANA.\n\t// See net.Dial for details of the address format.\n\tAddr string\n\n\tHandler Handler // handler to invoke, http.DefaultServeMux if nil\n\n\t// DisableGeneralOptionsHandler, if true, passes \"OPTIONS *\" requests to the Handler,\n\t// otherwise responds with 200 OK and Content-Length: 0.\n\tDisableGeneralOptionsHandler bool\n\n\t// TLSConfig optionally provides a TLS configuration for use\n\t// by ServeTLS and ListenAndServeTLS. Note that this value is\n\t// cloned by ServeTLS and ListenAndServeTLS, so it's not\n\t// possible to modify the configuration with methods like\n\t// tls.Config.SetSessionTicketKeys. To use\n\t// SetSessionTicketKeys, use Server.Serve with a TLS Listener\n\t// instead.\n\tTLSConfig *tls.Config\n\n\t// ReadTimeout is the maximum duration for reading the entire\n\t// request, including the body. A zero or negative value means\n\t// there will be no timeout.\n\t//\n\t// Because ReadTimeout does not let Handlers make per-request\n\t// decisions on each request body's acceptable deadline or\n\t// upload rate, most users will prefer to use\n\t// ReadHeaderTimeout. It is valid to use them both.\n\tReadTimeout time.Duration\n\n\t// ReadHeaderTimeout is the amount of time allowed to read\n\t// request headers. The connection's read deadline is reset\n\t// after reading the headers and the Handler can decide what\n\t// is considered too slow for the body. If zero, the value of\n\t// ReadTimeout is used. If negative, or if zero and ReadTimeout\n\t// is zero or negative, there is no timeout.\n\tReadHeaderTimeout time.Duration\n\n\t// WriteTimeout is the maximum duration before timing out\n\t// writes of the response. It is reset whenever a new\n\t// request's header is read. Like ReadTimeout, it does not\n\t// let Handlers make decisions on a per-request basis.\n\t// A zero or negative value means there will be no timeout.\n\tWriteTimeout time.Duration\n\n\t// IdleTimeout is the maximum amount of time to wait for the\n\t// next request when keep-alives are enabled. If zero, the value\n\t// of ReadTimeout is used. If negative, or if zero and ReadTimeout\n\t// is zero or negative, there is no timeout.\n\tIdleTimeout time.Duration\n\n\t// MaxHeaderBytes controls the maximum number of bytes the\n\t// server will read parsing the request header's keys and\n\t// values, including the request line. It does not limit the\n\t// size of the request body.\n\t// If zero, DefaultMaxHeaderBytes is used.\n\tMaxHeaderBytes int\n\n\t// TLSNextProto optionally specifies a function to take over\n\t// ownership of the provided TLS connection when an ALPN\n\t// protocol upgrade has occurred. The map key is the protocol\n\t// name negotiated. The Handler argument should be used to\n\t// handle HTTP requests and will initialize the Request's TLS\n\t// and RemoteAddr if not already set. The connection is\n\t// automatically closed when the function returns.\n\t// If TLSNextProto is not nil, HTTP/2 support is not enabled\n\t// automatically.\n\tTLSNextProto map[string]func(*Server, *tls.Conn, Handler)\n\n\t// ConnState specifies an optional callback function that is\n\t// called when a client connection changes state. See the\n\t// ConnState type and associated constants for details.\n\tConnState func(net.Conn, ConnState)\n\n\t// ErrorLog specifies an optional logger for errors accepting\n\t// connections, unexpected behavior from handlers, and\n\t// underlying FileSystem errors.\n\t// If nil, logging is done via the log package's standard logger.\n\tErrorLog *log.Logger\n\n\t// BaseContext optionally specifies a function that returns\n\t// the base context for incoming requests on this server.\n\t// The provided Listener is the specific Listener that's\n\t// about to start accepting requests.\n\t// If BaseContext is nil, the default is context.Background().\n\t// If non-nil, it must return a non-nil context.\n\tBaseContext func(net.Listener) context.Context\n\n\t// ConnContext optionally specifies a function that modifies\n\t// the context used for a new connection c. The provided ctx\n\t// is derived from the base context and has a ServerContextKey\n\t// value.\n\tConnContext func(ctx context.Context, c net.Conn) context.Context\n\n\tinShutdown atomic.Bool // true when server is in shutdown\n\n\tdisableKeepAlives atomic.Bool\n\tnextProtoOnce     sync.Once // guards setupHTTP2_* init\n\tnextProtoErr      error     // result of http2.ConfigureServer if used\n\n\tmu         sync.Mutex\n\tlisteners  map[*net.Listener]struct{}\n\tactiveConn map[*conn]struct{}\n\tonShutdown []func()\n\n\tlistenerGroup sync.WaitGroup\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/x/net@v0.43.0/http2/h2c/h2c.go",
+          "code_snippet": "func NewHandler(h http.Handler, s *http2.Server) http.Handler {\n\treturn \u0026h2cHandler{\n\t\tHandler: h,\n\t\ts:       s,\n\t}\n}",
+          "ref_module": "h2c"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "nil Type",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/sync/rwmutex.go",
+          "code_snippet": "func (rw *RWMutex) Unlock() {\n\tif race.Enabled {\n\t\t_ = rw.w.state\n\t\trace.Release(unsafe.Pointer(\u0026rw.readerSem))\n\t\trace.Disable()\n\t}\n\n\t// Announce to readers there is no active writer.\n\tr := rw.readerCount.Add(rwmutexMaxReaders)\n\tif r \u003e= rwmutexMaxReaders {\n\t\trace.Enable()\n\t\tfatal(\"sync: Unlock of unlocked RWMutex\")\n\t}\n\t// Unblock blocked readers, if any.\n\tfor i := 0; i \u003c int(r); i++ {\n\t\truntime_Semrelease(\u0026rw.readerSem, false, 0)\n\t}\n\t// Allow other writers to proceed.\n\trw.w.Unlock()\n\tif race.Enabled {\n\t\trace.Enable()\n\t}\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/net.go",
+          "code_snippet": "Listener interface {\n\t// Accept waits for and returns the next connection to the listener.\n\tAccept() (Conn, error)\n\n\t// Close closes the listener.\n\t// Any blocked Accept operations will be unblocked and return errors.\n\tClose() error\n\n\t// Addr returns the listener's network address.\n\tAddr() Addr\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/server.go",
+          "code_snippet": "func (srv *Server) Serve(l net.Listener) error {\n\tif fn := testHookServerServe; fn != nil {\n\t\tfn(srv, l) // call hook with unwrapped listener\n\t}\n\n\torigListener := l\n\tl = \u0026onceCloseListener{Listener: l}\n\tdefer l.Close()\n\n\tif err := srv.setupHTTP2_Serve(); err != nil {\n\t\treturn err\n\t}\n\n\tif !srv.trackListener(\u0026l, true) {\n\t\treturn ErrServerClosed\n\t}\n\tdefer srv.trackListener(\u0026l, false)\n\n\tbaseCtx := context.Background()\n\tif srv.BaseContext != nil {\n\t\tbaseCtx = srv.BaseContext(origListener)\n\t\tif baseCtx == nil {\n\t\t\tpanic(\"BaseContext returned a nil context\")\n\t\t}\n\t}\n\n\tvar tempDelay time.Duration // how long to sleep on accept failure\n\n\tctx := context.WithValue(baseCtx, ServerContextKey, srv)\n\tfor {\n\t\trw, err := l.Accept()\n\t\tif err != nil {\n\t\t\tif srv.shuttingDown() {\n\t\t\t\treturn ErrServerClosed\n\t\t\t}\n\t\t\tif ne, ok := err.(net.Error); ok \u0026\u0026 ne.Temporary() {\n\t\t\t\tif tempDelay == 0 {\n\t\t\t\t\ttempDelay = 5 * time.Millisecond\n\t\t\t\t} else {\n\t\t\t\t\ttempDelay *= 2\n\t\t\t\t}\n\t\t\t\tif max := 1 * time.Second; tempDelay \u003e max {\n\t\t\t\t\ttempDelay = max\n\t\t\t\t}\n\t\t\t\tsrv.logf(\"http: Accept error: %v; retrying in %v\", err, tempDelay)\n\t\t\t\ttime.Sleep(tempDelay)\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\treturn err\n\t\t}\n\t\tconnCtx := ctx\n\t\tif cc := srv.ConnContext; cc != nil {\n\t\t\tconnCtx = cc(connCtx, rw)\n\t\t\tif connCtx == nil {\n\t\t\t\tpanic(\"ConnContext returned nil\")\n\t\t\t}\n\t\t}\n\t\ttempDelay = 0\n\t\tc := srv.newConn(rw)\n\t\tc.setState(c.rwc, StateNew, runHooks) // before Serve can return\n\t\tgo c.serve(connCtx)\n\t}\n}",
+          "ref_module": ""
+        }
+      ],
+      "covered_lines": [
+        833,
+        834,
+        835,
+        836,
+        837,
+        838,
+        839,
+        840,
+        841,
+        842,
+        843,
+        845,
+        846,
+        847,
+        849,
+        850,
+        851,
+        852,
+        853,
+        854,
+        855,
+        857,
+        858,
+        859,
+        860,
+        861
+      ],
+      "cover_details": {
+        "line_cover_rate": 0.8666666666666667
+      }
+    },
+    {
+      "id": "github.com/labstack/echo/v4/middleware/logger.go:LoggerWithConfig",
+      "testcases": [
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/logger_test.go",
+          "func_name": "TestLoggerTemplateWithTimeUnixMicro"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/logger_test.go",
+          "func_name": "TestLoggerTemplateWithTimeUnixMilli"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/logger_test.go",
+          "func_name": "TestLoggerCustomTagFunc"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/logger_test.go",
+          "func_name": "TestLoggerIPAddress"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/logger_test.go",
+          "func_name": "TestLogger"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/logger_test.go",
+          "func_name": "TestLoggerCustomTimestamp"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/logger_test.go",
+          "func_name": "TestLoggerTemplate"
+        },
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/timeout_test.go",
+          "func_name": "TestTimeoutWithFullEchoStack"
+        }
+      ],
+      "name": "LoggerWithConfig",
+      "signature": "LoggerWithConfig (config LoggerConfig) echo.MiddlewareFunc",
+      "ground_truth": "func LoggerWithConfig(config LoggerConfig) echo.MiddlewareFunc {\n\t// Defaults\n\tif config.Skipper == nil {\n\t\tconfig.Skipper = DefaultLoggerConfig.Skipper\n\t}\n\tif config.Format == \"\" {\n\t\tconfig.Format = DefaultLoggerConfig.Format\n\t}\n\tif config.Output == nil {\n\t\tconfig.Output = DefaultLoggerConfig.Output\n\t}\n\n\tconfig.template = fasttemplate.New(config.Format, \"${\", \"}\")\n\tconfig.colorer = color.New()\n\tconfig.colorer.SetOutput(config.Output)\n\tconfig.pool = \u0026sync.Pool{\n\t\tNew: func() interface{} {\n\t\t\treturn bytes.NewBuffer(make([]byte, 256))\n\t\t},\n\t}\n\n\treturn func(next echo.HandlerFunc) echo.HandlerFunc {\n\t\treturn func(c echo.Context) (err error) {\n\t\t\tif config.Skipper(c) {\n\t\t\t\treturn next(c)\n\t\t\t}\n\n\t\t\treq := c.Request()\n\t\t\tres := c.Response()\n\t\t\tstart := time.Now()\n\t\t\tif err = next(c); err != nil {\n\t\t\t\tc.Error(err)\n\t\t\t}\n\t\t\tstop := time.Now()\n\t\t\tbuf := config.pool.Get().(*bytes.Buffer)\n\t\t\tbuf.Reset()\n\t\t\tdefer config.pool.Put(buf)\n\n\t\t\tif _, err = config.template.ExecuteFunc(buf, func(w io.Writer, tag string) (int, error) {\n\t\t\t\tswitch tag {\n\t\t\t\tcase \"custom\":\n\t\t\t\t\tif config.CustomTagFunc == nil {\n\t\t\t\t\t\treturn 0, nil\n\t\t\t\t\t}\n\t\t\t\t\treturn config.CustomTagFunc(c, buf)\n\t\t\t\tcase \"time_unix\":\n\t\t\t\t\treturn buf.WriteString(strconv.FormatInt(time.Now().Unix(), 10))\n\t\t\t\tcase \"time_unix_milli\":\n\t\t\t\t\t// go 1.17 or later, it supports time#UnixMilli()\n\t\t\t\t\treturn buf.WriteString(strconv.FormatInt(time.Now().UnixNano()/1000000, 10))\n\t\t\t\tcase \"time_unix_micro\":\n\t\t\t\t\t// go 1.17 or later, it supports time#UnixMicro()\n\t\t\t\t\treturn buf.WriteString(strconv.FormatInt(time.Now().UnixNano()/1000, 10))\n\t\t\t\tcase \"time_unix_nano\":\n\t\t\t\t\treturn buf.WriteString(strconv.FormatInt(time.Now().UnixNano(), 10))\n\t\t\t\tcase \"time_rfc3339\":\n\t\t\t\t\treturn buf.WriteString(time.Now().Format(time.RFC3339))\n\t\t\t\tcase \"time_rfc3339_nano\":\n\t\t\t\t\treturn buf.WriteString(time.Now().Format(time.RFC3339Nano))\n\t\t\t\tcase \"time_custom\":\n\t\t\t\t\treturn buf.WriteString(time.Now().Format(config.CustomTimeFormat))\n\t\t\t\tcase \"id\":\n\t\t\t\t\tid := req.Header.Get(echo.HeaderXRequestID)\n\t\t\t\t\tif id == \"\" {\n\t\t\t\t\t\tid = res.Header().Get(echo.HeaderXRequestID)\n\t\t\t\t\t}\n\t\t\t\t\treturn buf.WriteString(id)\n\t\t\t\tcase \"remote_ip\":\n\t\t\t\t\treturn buf.WriteString(c.RealIP())\n\t\t\t\tcase \"host\":\n\t\t\t\t\treturn buf.WriteString(req.Host)\n\t\t\t\tcase \"uri\":\n\t\t\t\t\treturn buf.WriteString(req.RequestURI)\n\t\t\t\tcase \"method\":\n\t\t\t\t\treturn buf.WriteString(req.Method)\n\t\t\t\tcase \"path\":\n\t\t\t\t\tp := req.URL.Path\n\t\t\t\t\tif p == \"\" {\n\t\t\t\t\t\tp = \"/\"\n\t\t\t\t\t}\n\t\t\t\t\treturn buf.WriteString(p)\n\t\t\t\tcase \"route\":\n\t\t\t\t\treturn buf.WriteString(c.Path())\n\t\t\t\tcase \"protocol\":\n\t\t\t\t\treturn buf.WriteString(req.Proto)\n\t\t\t\tcase \"referer\":\n\t\t\t\t\treturn buf.WriteString(req.Referer())\n\t\t\t\tcase \"user_agent\":\n\t\t\t\t\treturn buf.WriteString(req.UserAgent())\n\t\t\t\tcase \"status\":\n\t\t\t\t\tn := res.Status\n\t\t\t\t\ts := config.colorer.Green(n)\n\t\t\t\t\tswitch {\n\t\t\t\t\tcase n \u003e= 500:\n\t\t\t\t\t\ts = config.colorer.Red(n)\n\t\t\t\t\tcase n \u003e= 400:\n\t\t\t\t\t\ts = config.colorer.Yellow(n)\n\t\t\t\t\tcase n \u003e= 300:\n\t\t\t\t\t\ts = config.colorer.Cyan(n)\n\t\t\t\t\t}\n\t\t\t\t\treturn buf.WriteString(s)\n\t\t\t\tcase \"error\":\n\t\t\t\t\tif err != nil {\n\t\t\t\t\t\t// Error may contain invalid JSON e.g. `\"`\n\t\t\t\t\t\tb, _ := json.Marshal(err.Error())\n\t\t\t\t\t\tb = b[1 : len(b)-1]\n\t\t\t\t\t\treturn buf.Write(b)\n\t\t\t\t\t}\n\t\t\t\tcase \"latency\":\n\t\t\t\t\tl := stop.Sub(start)\n\t\t\t\t\treturn buf.WriteString(strconv.FormatInt(int64(l), 10))\n\t\t\t\tcase \"latency_human\":\n\t\t\t\t\treturn buf.WriteString(stop.Sub(start).String())\n\t\t\t\tcase \"bytes_in\":\n\t\t\t\t\tcl := req.Header.Get(echo.HeaderContentLength)\n\t\t\t\t\tif cl == \"\" {\n\t\t\t\t\t\tcl = \"0\"\n\t\t\t\t\t}\n\t\t\t\t\treturn buf.WriteString(cl)\n\t\t\t\tcase \"bytes_out\":\n\t\t\t\t\treturn buf.WriteString(strconv.FormatInt(res.Size, 10))\n\t\t\t\tdefault:\n\t\t\t\t\tswitch {\n\t\t\t\t\tcase strings.HasPrefix(tag, \"header:\"):\n\t\t\t\t\t\treturn buf.Write([]byte(c.Request().Header.Get(tag[7:])))\n\t\t\t\t\tcase strings.HasPrefix(tag, \"query:\"):\n\t\t\t\t\t\treturn buf.Write([]byte(c.QueryParam(tag[6:])))\n\t\t\t\t\tcase strings.HasPrefix(tag, \"form:\"):\n\t\t\t\t\t\treturn buf.Write([]byte(c.FormValue(tag[5:])))\n\t\t\t\t\tcase strings.HasPrefix(tag, \"cookie:\"):\n\t\t\t\t\t\tcookie, err := c.Cookie(tag[7:])\n\t\t\t\t\t\tif err == nil {\n\t\t\t\t\t\t\treturn buf.Write([]byte(cookie.Value))\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\treturn 0, nil\n\t\t\t}); err != nil {\n\t\t\t\treturn\n\t\t\t}\n\n\t\t\tif config.Output == nil {\n\t\t\t\t_, err = c.Logger().Output().Write(buf.Bytes())\n\t\t\t\treturn\n\t\t\t}\n\t\t\t_, err = config.Output.Write(buf.Bytes())\n\t\t\treturn\n\t\t}\n\t}\n}",
+      "function_comment": "// LoggerWithConfig returns a Logger middleware with custom configuration.\n//\n// This function allows you to customize all aspects of request logging including:\n//   - Log format and fields\n//   - Output destination\n//   - Time formatting\n//   - Custom tags and logic\n//   - Request filtering\n//\n// See LoggerConfig documentation for detailed configuration examples and options.\n//\n// Example:\n//\n//\te.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{\n//\t\tFormat: \"${time_rfc3339} ${status} ${method} ${uri} ${latency_human}\\n\",\n//\t\tOutput: customLogWriter,\n//\t\tSkipper: func(c echo.Context) bool {\n//\t\t\treturn c.Request().URL.Path == \"/health\"\n//\t\t},\n//\t}))",
+      "function_statement": "// LoggerWithConfig returns a Logger middleware with custom configuration.\n//\n// This function allows you to customize all aspects of request logging including:\n//   - Log format and fields\n//   - Output destination\n//   - Time formatting\n//   - Custom tags and logic\n//   - Request filtering\n//\n// See LoggerConfig documentation for detailed configuration examples and options.\n//\n// Example:\n//\n//\te.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{\n//\t\tFormat: \"${time_rfc3339} ${status} ${method} ${uri} ${latency_human}\\n\",\n//\t\tOutput: customLogWriter,\n//\t\tSkipper: func(c echo.Context) bool {\n//\t\t\treturn c.Request().URL.Path == \"/health\"\n//\t\t},\n//\t}))",
+      "start_line": 262,
+      "end_line": 411,
+      "file_path": "./middleware/logger.go",
+      "repo_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/middleware/logger.go",
+          "code_snippet": "LoggerConfig struct {\n\t// Skipper defines a function to skip middleware.\n\t// Use this to exclude certain requests from logging (e.g., health checks).\n\t//\n\t// Example:\n\t//\tSkipper: func(c echo.Context) bool {\n\t//\t\treturn c.Request().URL.Path == \"/health\"\n\t//\t},\n\tSkipper Skipper\n\n\t// Format defines the logging format using template tags.\n\t// Tags are enclosed in ${} and replaced with actual values.\n\t// See the detailed tag documentation above for all available options.\n\t//\n\t// Default: JSON format with common fields\n\t// Example: \"${time_rfc3339_nano} ${status} ${method} ${uri} ${latency_human}\\n\"\n\tFormat string `yaml:\"format\"`\n\n\t// CustomTimeFormat specifies the time format used by ${time_custom} tag.\n\t// Uses Go's reference time: Mon Jan 2 15:04:05 MST 2006\n\t//\n\t// Default: \"2006-01-02 15:04:05.00000\"\n\t// Example: \"2006-01-02 15:04:05\" or \"15:04:05.000\"\n\tCustomTimeFormat string `yaml:\"custom_time_format\"`\n\n\t// CustomTagFunc is called when ${custom} tag is encountered.\n\t// Use this to add application-specific information to logs.\n\t// The function should write valid content for your log format.\n\t//\n\t// Example:\n\t//\tCustomTagFunc: func(c echo.Context, buf *bytes.Buffer) (int, error) {\n\t//\t\tuserID := getUserFromContext(c)\n\t//\t\treturn buf.WriteString(`\"user_id\":\"` + userID + `\"`)\n\t//\t},\n\tCustomTagFunc func(c echo.Context, buf *bytes.Buffer) (int, error)\n\n\t// Output specifies where logs are written.\n\t// Can be any io.Writer: files, buffers, network connections, etc.\n\t//\n\t// Default: os.Stdout\n\t// Example: Custom file, syslog, or external logging service\n\tOutput io.Writer\n\n\ttemplate *fasttemplate.Template\n\tcolorer  *color.Color\n\tpool     *sync.Pool\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "MiddlewareFunc func(next HandlerFunc) HandlerFunc",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/middleware/logger.go",
+          "code_snippet": "DefaultLoggerConfig = LoggerConfig{\n\tSkipper: DefaultSkipper,\n\tFormat: `{\"time\":\"${time_rfc3339_nano}\",\"id\":\"${id}\",\"remote_ip\":\"${remote_ip}\",` +\n\t\t`\"host\":\"${host}\",\"method\":\"${method}\",\"uri\":\"${uri}\",\"user_agent\":\"${user_agent}\",` +\n\t\t`\"status\":${status},\"error\":\"${error}\",\"latency\":${latency},\"latency_human\":\"${latency_human}\"` +\n\t\t`,\"bytes_in\":${bytes_in},\"bytes_out\":${bytes_out}}` + \"\\n\",\n\tCustomTimeFormat: \"2006-01-02 15:04:05.00000\",\n\tcolorer:          color.New(),\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "HandlerFunc func(c Context) error",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/context.go",
+          "code_snippet": "Context interface {\n\t// Request returns `*http.Request`.\n\tRequest() *http.Request\n\n\t// SetRequest sets `*http.Request`.\n\tSetRequest(r *http.Request)\n\n\t// SetResponse sets `*Response`.\n\tSetResponse(r *Response)\n\n\t// Response returns `*Response`.\n\tResponse() *Response\n\n\t// IsTLS returns true if HTTP connection is TLS otherwise false.\n\tIsTLS() bool\n\n\t// IsWebSocket returns true if HTTP connection is WebSocket otherwise false.\n\tIsWebSocket() bool\n\n\t// Scheme returns the HTTP protocol scheme, `http` or `https`.\n\tScheme() string\n\n\t// RealIP returns the client's network address based on `X-Forwarded-For`\n\t// or `X-Real-IP` request header.\n\t// The behavior can be configured using `Echo#IPExtractor`.\n\tRealIP() string\n\n\t// Path returns the registered path for the handler.\n\tPath() string\n\n\t// SetPath sets the registered path for the handler.\n\tSetPath(p string)\n\n\t// Param returns path parameter by name.\n\tParam(name string) string\n\n\t// ParamNames returns path parameter names.\n\tParamNames() []string\n\n\t// SetParamNames sets path parameter names.\n\tSetParamNames(names ...string)\n\n\t// ParamValues returns path parameter values.\n\tParamValues() []string\n\n\t// SetParamValues sets path parameter values.\n\tSetParamValues(values ...string)\n\n\t// QueryParam returns the query param for the provided name.\n\tQueryParam(name string) string\n\n\t// QueryParams returns the query parameters as `url.Values`.\n\tQueryParams() url.Values\n\n\t// QueryString returns the URL query string.\n\tQueryString() string\n\n\t// FormValue returns the form field value for the provided name.\n\tFormValue(name string) string\n\n\t// FormParams returns the form parameters as `url.Values`.\n\tFormParams() (url.Values, error)\n\n\t// FormFile returns the multipart form file for the provided name.\n\tFormFile(name string) (*multipart.FileHeader, error)\n\n\t// MultipartForm returns the multipart form.\n\tMultipartForm() (*multipart.Form, error)\n\n\t// Cookie returns the named cookie provided in the request.\n\tCookie(name string) (*http.Cookie, error)\n\n\t// SetCookie adds a `Set-Cookie` header in HTTP response.\n\tSetCookie(cookie *http.Cookie)\n\n\t// Cookies returns the HTTP cookies sent with the request.\n\tCookies() []*http.Cookie\n\n\t// Get retrieves data from the context.\n\tGet(key string) any\n\n\t// Set saves data in the context.\n\tSet(key string, val any)\n\n\t// Bind binds path params, query params and the request body into provided type `i`. The default binder\n\t// binds body based on Content-Type header.\n\tBind(i any) error\n\n\t// Validate validates provided `i`. It is usually called after `Context#Bind()`.\n\t// Validator must be registered using `Echo#Validator`.\n\tValidate(i any) error\n\n\t// Render renders a template with data and sends a text/html response with status\n\t// code. Renderer must be registered using `Echo.Renderer`.\n\tRender(code int, name string, data any) error\n\n\t// HTML sends an HTTP response with status code.\n\tHTML(code int, html string) error\n\n\t// HTMLBlob sends an HTTP blob response with status code.\n\tHTMLBlob(code int, b []byte) error\n\n\t// String sends a string response with status code.\n\tString(code int, s string) error\n\n\t// JSON sends a JSON response with status code.\n\tJSON(code int, i any) error\n\n\t// JSONPretty sends a pretty-print JSON with status code.\n\tJSONPretty(code int, i any, indent string) error\n\n\t// JSONBlob sends a JSON blob response with status code.\n\tJSONBlob(code int, b []byte) error\n\n\t// JSONP sends a JSONP response with status code. It uses `callback` to construct\n\t// the JSONP payload.\n\tJSONP(code int, callback string, i any) error\n\n\t// JSONPBlob sends a JSONP blob response with status code. It uses `callback`\n\t// to construct the JSONP payload.\n\tJSONPBlob(code int, callback string, b []byte) error\n\n\t// XML sends an XML response with status code.\n\tXML(code int, i any) error\n\n\t// XMLPretty sends a pretty-print XML with status code.\n\tXMLPretty(code int, i any, indent string) error\n\n\t// XMLBlob sends an XML blob response with status code.\n\tXMLBlob(code int, b []byte) error\n\n\t// Blob sends a blob response with status code and content type.\n\tBlob(code int, contentType string, b []byte) error\n\n\t// Stream sends a streaming response with status code and content type.\n\tStream(code int, contentType string, r io.Reader) error\n\n\t// File sends a response with the content of the file.\n\tFile(file string) error\n\n\t// Attachment sends a response as attachment, prompting client to save the\n\t// file.\n\tAttachment(file string, name string) error\n\n\t// Inline sends a response as inline, opening the file in the browser.\n\tInline(file string, name string) error\n\n\t// NoContent sends a response with no body and a status code.\n\tNoContent(code int) error\n\n\t// Redirect redirects the request to a provided URL with status code.\n\tRedirect(code int, url string) error\n\n\t// Error invokes the registered global HTTP error handler. Generally used by middleware.\n\t// A side-effect of calling global error handler is that now Response has been committed (sent to the client) and\n\t// middlewares up in chain can not change Response status code or Response body anymore.\n\t//\n\t// Avoid using this method in handlers as no middleware will be able to effectively handle errors after that.\n\tError(err error)\n\n\t// Handler returns the matched handler by router.\n\tHandler() HandlerFunc\n\n\t// SetHandler sets the matched handler by router.\n\tSetHandler(h HandlerFunc)\n\n\t// Logger returns the `Logger` instance.\n\tLogger() Logger\n\n\t// SetLogger Set the logger\n\tSetLogger(l Logger)\n\n\t// Echo returns the `Echo` instance.\n\tEcho() *Echo\n\n\t// Reset resets the context after request completes. It must be called along\n\t// with `Echo#AcquireContext()` and `Echo#ReleaseContext()`.\n\t// See `Echo#ServeHTTP()`\n\tReset(r *http.Request, w http.ResponseWriter)\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "HeaderXRequestID          = \"X-Request-Id\"",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/response.go",
+          "code_snippet": "func (r *Response) Header() http.Header {\n\treturn r.Writer.Header()\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/response.go",
+          "code_snippet": "Response struct {\n\tWriter      http.ResponseWriter\n\techo        *Echo\n\tbeforeFuncs []func()\n\tafterFuncs  []func()\n\tStatus      int\n\tSize        int64\n\tCommitted   bool\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "HeaderContentLength       = \"Content-Length\"",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/log.go",
+          "code_snippet": "Logger interface {\n\tOutput() io.Writer\n\tSetOutput(w io.Writer)\n\tPrefix() string\n\tSetPrefix(p string)\n\tLevel() log.Lvl\n\tSetLevel(v log.Lvl)\n\tSetHeader(h string)\n\tPrint(i ...interface{})\n\tPrintf(format string, args ...interface{})\n\tPrintj(j log.JSON)\n\tDebug(i ...interface{})\n\tDebugf(format string, args ...interface{})\n\tDebugj(j log.JSON)\n\tInfo(i ...interface{})\n\tInfof(format string, args ...interface{})\n\tInfoj(j log.JSON)\n\tWarn(i ...interface{})\n\tWarnf(format string, args ...interface{})\n\tWarnj(j log.JSON)\n\tError(i ...interface{})\n\tErrorf(format string, args ...interface{})\n\tErrorj(j log.JSON)\n\tFatal(i ...interface{})\n\tFatalj(j log.JSON)\n\tFatalf(format string, args ...interface{})\n\tPanic(i ...interface{})\n\tPanicj(j log.JSON)\n\tPanicf(format string, args ...interface{})\n}",
+          "ref_module": "v4"
+        }
+      ],
+      "third_party_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/valyala/fasttemplate@v1.2.2/template.go",
+          "code_snippet": "func New(template, startTag, endTag string) *Template {\n\tt, err := NewTemplate(template, startTag, endTag)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\treturn t\n}",
+          "ref_module": "fasttemplate"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func New() (c *Color) {\n\tc = new(Color)\n\tc.SetOutput(colorable.NewColorableStdout())\n\treturn\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) SetOutput(w io.Writer) {\n\tc.output = w\n\tif w, ok := w.(*os.File); !ok || !isatty.IsTerminal(w.Fd()) {\n\t\tc.disabled = true\n\t}\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/valyala/fasttemplate@v1.2.2/template.go",
+          "code_snippet": "func (t *Template) ExecuteFunc(w io.Writer, f TagFunc) (int64, error) {\n\tvar nn int64\n\n\tn := len(t.texts) - 1\n\tif n == -1 {\n\t\tni, err := w.Write(unsafeString2Bytes(t.template))\n\t\treturn int64(ni), err\n\t}\n\n\tfor i := 0; i \u003c n; i++ {\n\t\tni, err := w.Write(t.texts[i])\n\t\tnn += int64(ni)\n\t\tif err != nil {\n\t\t\treturn nn, err\n\t\t}\n\n\t\tni, err = f(w, t.tags[i])\n\t\tnn += int64(ni)\n\t\tif err != nil {\n\t\t\treturn nn, err\n\t\t}\n\t}\n\tni, err := w.Write(t.texts[n])\n\tnn += int64(ni)\n\treturn nn, err\n}",
+          "ref_module": "fasttemplate"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Green(msg interface{}, styles ...string) string {\n\treturn green(msg, styles, c)\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Red(msg interface{}, styles ...string) string {\n\treturn red(msg, styles, c)\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Yellow(msg interface{}, styles ...string) string {\n\treturn yellow(msg, styles, c)\n}",
+          "ref_module": "color"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/color/color.go",
+          "code_snippet": "func (c *Color) Cyan(msg interface{}, styles ...string) string {\n\treturn cyan(msg, styles, c)\n}",
+          "ref_module": "color"
+        }
+      ],
+      "system_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "nil Type",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/sync/pool.go",
+          "code_snippet": "Pool struct {\n\tnoCopy noCopy\n\n\tlocal     unsafe.Pointer // local fixed-size per-P pool, actual type is [P]poolLocal\n\tlocalSize uintptr        // size of the local array\n\n\tvictim     unsafe.Pointer // local from previous cycle\n\tvictimSize uintptr        // size of victims array\n\n\t// New optionally specifies a function to generate\n\t// a value when Get would otherwise return nil.\n\t// It may not be changed concurrently with calls to Get.\n\tNew func() any\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/bytes/buffer.go",
+          "code_snippet": "func NewBuffer(buf []byte) *Buffer { return \u0026Buffer{buf: buf} }",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "func make(t Type, size ...IntegerType) Type",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "byte = uint8",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "error interface {\n\tError() string\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/time/time.go",
+          "code_snippet": "func Now() Time {\n\tsec, nsec, mono := now()\n\tmono -= startNano\n\tsec += unixToInternal - minWall\n\tif uint64(sec)\u003e\u003e33 != 0 {\n\t\t// Seconds field overflowed the 33 bits available when\n\t\t// storing a monotonic time. This will be true after\n\t\t// March 16, 2157.\n\t\treturn Time{uint64(nsec), sec + minWall, Local}\n\t}\n\treturn Time{hasMonotonic | uint64(sec)\u003c\u003cnsecShift | uint64(nsec), mono, Local}\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/sync/pool.go",
+          "code_snippet": "func (p *Pool) Get() any {\n\tif race.Enabled {\n\t\trace.Disable()\n\t}\n\tl, pid := p.pin()\n\tx := l.private\n\tl.private = nil\n\tif x == nil {\n\t\t// Try to pop the head of the local shard. We prefer\n\t\t// the head over the tail for temporal locality of\n\t\t// reuse.\n\t\tx, _ = l.shared.popHead()\n\t\tif x == nil {\n\t\t\tx = p.getSlow(pid)\n\t\t}\n\t}\n\truntime_procUnpin()\n\tif race.Enabled {\n\t\trace.Enable()\n\t\tif x != nil {\n\t\t\trace.Acquire(poolRaceAddr(x))\n\t\t}\n\t}\n\tif x == nil \u0026\u0026 p.New != nil {\n\t\tx = p.New()\n\t}\n\treturn x\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/bytes/buffer.go",
+          "code_snippet": "Buffer struct {\n\tbuf      []byte // contents are the bytes buf[off : len(buf)]\n\toff      int    // read at \u0026buf[off], write at \u0026buf[len(buf)]\n\tlastRead readOp // last read operation, so that Unread* can work correctly.\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/bytes/buffer.go",
+          "code_snippet": "func (b *Buffer) Reset() {\n\tb.buf = b.buf[:0]\n\tb.off = 0\n\tb.lastRead = opInvalid\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/sync/pool.go",
+          "code_snippet": "func (p *Pool) Put(x any) {\n\tif x == nil {\n\t\treturn\n\t}\n\tif race.Enabled {\n\t\tif runtime_randn(4) == 0 {\n\t\t\t// Randomly drop x on floor.\n\t\t\treturn\n\t\t}\n\t\trace.ReleaseMerge(poolRaceAddr(x))\n\t\trace.Disable()\n\t}\n\tl, _ := p.pin()\n\tif l.private == nil {\n\t\tl.private = x\n\t} else {\n\t\tl.shared.pushHead(x)\n\t}\n\truntime_procUnpin()\n\tif race.Enabled {\n\t\trace.Enable()\n\t}\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/io/io.go",
+          "code_snippet": "Writer interface {\n\tWrite(p []byte) (n int, err error)\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "string string",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "int int",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/bytes/buffer.go",
+          "code_snippet": "func (b *Buffer) WriteString(s string) (n int, err error) {\n\tb.lastRead = opInvalid\n\tm, ok := b.tryGrowByReslice(len(s))\n\tif !ok {\n\t\tm = b.grow(len(s))\n\t}\n\treturn copy(b.buf[m:], s), nil\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/strconv/itoa.go",
+          "code_snippet": "func FormatInt(i int64, base int) string {\n\tif fastSmalls \u0026\u0026 0 \u003c= i \u0026\u0026 i \u003c nSmalls \u0026\u0026 base == 10 {\n\t\treturn small(int(i))\n\t}\n\t_, s := formatBits(nil, uint64(i), base, i \u003c 0, false)\n\treturn s\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/time/time.go",
+          "code_snippet": "func (t Time) Unix() int64 {\n\treturn t.unixSec()\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/time/time.go",
+          "code_snippet": "func (t Time) UnixNano() int64 {\n\treturn (t.unixSec())*1e9 + int64(t.nsec())\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/time/format.go",
+          "code_snippet": "func (t Time) Format(layout string) string {\n\tconst bufSize = 64\n\tvar b []byte\n\tmax := len(layout) + 10\n\tif max \u003c bufSize {\n\t\tvar buf [bufSize]byte\n\t\tb = buf[:0]\n\t} else {\n\t\tb = make([]byte, 0, max)\n\t}\n\tb = t.AppendFormat(b, layout)\n\treturn string(b)\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/time/format.go",
+          "code_snippet": "RFC3339     = \"2006-01-02T15:04:05Z07:00\"",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/time/format.go",
+          "code_snippet": "RFC3339Nano = \"2006-01-02T15:04:05.999999999Z07:00\"",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/header.go",
+          "code_snippet": "func (h Header) Get(key string) string {\n\treturn textproto.MIMEHeader(h).Get(key)\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/request.go",
+          "code_snippet": "Request struct {\n\t// Method specifies the HTTP method (GET, POST, PUT, etc.).\n\t// For client requests, an empty string means GET.\n\tMethod string\n\n\t// URL specifies either the URI being requested (for server\n\t// requests) or the URL to access (for client requests).\n\t//\n\t// For server requests, the URL is parsed from the URI\n\t// supplied on the Request-Line as stored in RequestURI.  For\n\t// most requests, fields other than Path and RawQuery will be\n\t// empty. (See RFC 7230, Section 5.3)\n\t//\n\t// For client requests, the URL's Host specifies the server to\n\t// connect to, while the Request's Host field optionally\n\t// specifies the Host header value to send in the HTTP\n\t// request.\n\tURL *url.URL\n\n\t// The protocol version for incoming server requests.\n\t//\n\t// For client requests, these fields are ignored. The HTTP\n\t// client code always uses either HTTP/1.1 or HTTP/2.\n\t// See the docs on Transport for details.\n\tProto      string // \"HTTP/1.0\"\n\tProtoMajor int    // 1\n\tProtoMinor int    // 0\n\n\t// Header contains the request header fields either received\n\t// by the server or to be sent by the client.\n\t//\n\t// If a server received a request with header lines,\n\t//\n\t//\tHost: example.com\n\t//\taccept-encoding: gzip, deflate\n\t//\tAccept-Language: en-us\n\t//\tfOO: Bar\n\t//\tfoo: two\n\t//\n\t// then\n\t//\n\t//\tHeader = map[string][]string{\n\t//\t\t\"Accept-Encoding\": {\"gzip, deflate\"},\n\t//\t\t\"Accept-Language\": {\"en-us\"},\n\t//\t\t\"Foo\": {\"Bar\", \"two\"},\n\t//\t}\n\t//\n\t// For incoming requests, the Host header is promoted to the\n\t// Request.Host field and removed from the Header map.\n\t//\n\t// HTTP defines that header names are case-insensitive. The\n\t// request parser implements this by using CanonicalHeaderKey,\n\t// making the first character and any characters following a\n\t// hyphen uppercase and the rest lowercase.\n\t//\n\t// For client requests, certain headers such as Content-Length\n\t// and Connection are automatically written when needed and\n\t// values in Header may be ignored. See the documentation\n\t// for the Request.Write method.\n\tHeader Header\n\n\t// Body is the request's body.\n\t//\n\t// For client requests, a nil body means the request has no\n\t// body, such as a GET request. The HTTP Client's Transport\n\t// is responsible for calling the Close method.\n\t//\n\t// For server requests, the Request Body is always non-nil\n\t// but will return EOF immediately when no body is present.\n\t// The Server will close the request body. The ServeHTTP\n\t// Handler does not need to.\n\t//\n\t// Body must allow Read to be called concurrently with Close.\n\t// In particular, calling Close should unblock a Read waiting\n\t// for input.\n\tBody io.ReadCloser\n\n\t// GetBody defines an optional func to return a new copy of\n\t// Body. It is used for client requests when a redirect requires\n\t// reading the body more than once. Use of GetBody still\n\t// requires setting Body.\n\t//\n\t// For server requests, it is unused.\n\tGetBody func() (io.ReadCloser, error)\n\n\t// ContentLength records the length of the associated content.\n\t// The value -1 indicates that the length is unknown.\n\t// Values \u003e= 0 indicate that the given number of bytes may\n\t// be read from Body.\n\t//\n\t// For client requests, a value of 0 with a non-nil Body is\n\t// also treated as unknown.\n\tContentLength int64\n\n\t// TransferEncoding lists the transfer encodings from outermost to\n\t// innermost. An empty list denotes the \"identity\" encoding.\n\t// TransferEncoding can usually be ignored; chunked encoding is\n\t// automatically added and removed as necessary when sending and\n\t// receiving requests.\n\tTransferEncoding []string\n\n\t// Close indicates whether to close the connection after\n\t// replying to this request (for servers) or after sending this\n\t// request and reading its response (for clients).\n\t//\n\t// For server requests, the HTTP server handles this automatically\n\t// and this field is not needed by Handlers.\n\t//\n\t// For client requests, setting this field prevents re-use of\n\t// TCP connections between requests to the same hosts, as if\n\t// Transport.DisableKeepAlives were set.\n\tClose bool\n\n\t// For server requests, Host specifies the host on which the\n\t// URL is sought. For HTTP/1 (per RFC 7230, section 5.4), this\n\t// is either the value of the \"Host\" header or the host name\n\t// given in the URL itself. For HTTP/2, it is the value of the\n\t// \":authority\" pseudo-header field.\n\t// It may be of the form \"host:port\". For international domain\n\t// names, Host may be in Punycode or Unicode form. Use\n\t// golang.org/x/net/idna to convert it to either format if\n\t// needed.\n\t// To prevent DNS rebinding attacks, server Handlers should\n\t// validate that the Host header has a value for which the\n\t// Handler considers itself authoritative. The included\n\t// ServeMux supports patterns registered to particular host\n\t// names and thus protects its registered Handlers.\n\t//\n\t// For client requests, Host optionally overrides the Host\n\t// header to send. If empty, the Request.Write method uses\n\t// the value of URL.Host. Host may contain an international\n\t// domain name.\n\tHost string\n\n\t// Form contains the parsed form data, including both the URL\n\t// field's query parameters and the PATCH, POST, or PUT form data.\n\t// This field is only available after ParseForm is called.\n\t// The HTTP client ignores Form and uses Body instead.\n\tForm url.Values\n\n\t// PostForm contains the parsed form data from PATCH, POST\n\t// or PUT body parameters.\n\t//\n\t// This field is only available after ParseForm is called.\n\t// The HTTP client ignores PostForm and uses Body instead.\n\tPostForm url.Values\n\n\t// MultipartForm is the parsed multipart form, including file uploads.\n\t// This field is only available after ParseMultipartForm is called.\n\t// The HTTP client ignores MultipartForm and uses Body instead.\n\tMultipartForm *multipart.Form\n\n\t// Trailer specifies additional headers that are sent after the request\n\t// body.\n\t//\n\t// For server requests, the Trailer map initially contains only the\n\t// trailer keys, with nil values. (The client declares which trailers it\n\t// will later send.)  While the handler is reading from Body, it must\n\t// not reference Trailer. After reading from Body returns EOF, Trailer\n\t// can be read again and will contain non-nil values, if they were sent\n\t// by the client.\n\t//\n\t// For client requests, Trailer must be initialized to a map containing\n\t// the trailer keys to later send. The values may be nil or their final\n\t// values. The ContentLength must be 0 or -1, to send a chunked request.\n\t// After the HTTP request is sent the map values can be updated while\n\t// the request body is read. Once the body returns EOF, the caller must\n\t// not mutate Trailer.\n\t//\n\t// Few HTTP clients, servers, or proxies support HTTP trailers.\n\tTrailer Header\n\n\t// RemoteAddr allows HTTP servers and other software to record\n\t// the network address that sent the request, usually for\n\t// logging. This field is not filled in by ReadRequest and\n\t// has no defined format. The HTTP server in this package\n\t// sets RemoteAddr to an \"IP:port\" address before invoking a\n\t// handler.\n\t// This field is ignored by the HTTP client.\n\tRemoteAddr string\n\n\t// RequestURI is the unmodified request-target of the\n\t// Request-Line (RFC 7230, Section 3.1.1) as sent by the client\n\t// to a server. Usually the URL field should be used instead.\n\t// It is an error to set this field in an HTTP client request.\n\tRequestURI string\n\n\t// TLS allows HTTP servers and other software to record\n\t// information about the TLS connection on which the request\n\t// was received. This field is not filled in by ReadRequest.\n\t// The HTTP server in this package sets the field for\n\t// TLS-enabled connections before invoking a handler;\n\t// otherwise it leaves the field nil.\n\t// This field is ignored by the HTTP client.\n\tTLS *tls.ConnectionState\n\n\t// Cancel is an optional channel whose closure indicates that the client\n\t// request should be regarded as canceled. Not all implementations of\n\t// RoundTripper may support Cancel.\n\t//\n\t// For server requests, this field is not applicable.\n\t//\n\t// Deprecated: Set the Request's context with NewRequestWithContext\n\t// instead. If a Request's Cancel field and context are both\n\t// set, it is undefined whether Cancel is respected.\n\tCancel \u003c-chan struct{}\n\n\t// Response is the redirect response which caused this request\n\t// to be created. This field is only populated during client\n\t// redirects.\n\tResponse *Response\n\n\t// Pattern is the [ServeMux] pattern that matched the request.\n\t// It is empty if the request was not matched against a pattern.\n\tPattern string\n\n\t// ctx is either the client or server context. It should only\n\t// be modified via copying the whole Request using Clone or WithContext.\n\t// It is unexported to prevent people from using Context wrong\n\t// and mutating the contexts held by callers of the same request.\n\tctx context.Context\n\n\t// The following fields are for requests matched by ServeMux.\n\tpat         *pattern          // the pattern that matched\n\tmatches     []string          // values for the matching wildcards in pat\n\totherValues map[string]string // for calls to SetPathValue that don't match a wildcard\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/url/url.go",
+          "code_snippet": "URL struct {\n\tScheme      string\n\tOpaque      string    // encoded opaque data\n\tUser        *Userinfo // username and password information\n\tHost        string    // host or host:port (see Hostname and Port methods)\n\tPath        string    // path (relative paths may omit leading slash)\n\tRawPath     string    // encoded path hint (see EscapedPath method)\n\tOmitHost    bool      // do not emit empty host (authority)\n\tForceQuery  bool      // append a query ('?') even if RawQuery is empty\n\tRawQuery    string    // encoded query values, without '?'\n\tFragment    string    // fragment for references, without '#'\n\tRawFragment string    // encoded fragment hint (see EscapedFragment method)\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/request.go",
+          "code_snippet": "func (r *Request) Referer() string {\n\treturn r.Header.Get(\"Referer\")\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/request.go",
+          "code_snippet": "func (r *Request) UserAgent() string {\n\treturn r.Header.Get(\"User-Agent\")\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/encoding/json/encode.go",
+          "code_snippet": "func Marshal(v any) ([]byte, error) {\n\te := newEncodeState()\n\tdefer encodeStatePool.Put(e)\n\n\terr := e.marshal(v, encOpts{escapeHTML: true})\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tbuf := append([]byte(nil), e.Bytes()...)\n\n\treturn buf, nil\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "func len(v Type) int",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/bytes/buffer.go",
+          "code_snippet": "func (b *Buffer) Write(p []byte) (n int, err error) {\n\tb.lastRead = opInvalid\n\tm, ok := b.tryGrowByReslice(len(p))\n\tif !ok {\n\t\tm = b.grow(len(p))\n\t}\n\treturn copy(b.buf[m:], p), nil\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/time/time.go",
+          "code_snippet": "func (t Time) Sub(u Time) Duration {\n\tif t.wall\u0026u.wall\u0026hasMonotonic != 0 {\n\t\treturn subMono(t.ext, u.ext)\n\t}\n\td := Duration(t.sec()-u.sec())*Second + Duration(t.nsec()-u.nsec())\n\t// Check for overflow or underflow.\n\tswitch {\n\tcase u.Add(d).Equal(t):\n\t\treturn d // d is correct\n\tcase t.Before(u):\n\t\treturn minDuration // t - u is negative out of range\n\tdefault:\n\t\treturn maxDuration // t - u is positive out of range\n\t}\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "int64 int64",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/time/time.go",
+          "code_snippet": "func (d Duration) String() string {\n\t// This is inlinable to take advantage of \"function outlining\".\n\t// Thus, the caller can decide whether a string must be heap allocated.\n\tvar arr [32]byte\n\tn := d.format(\u0026arr)\n\treturn string(arr[n:])\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/strings/strings.go",
+          "code_snippet": "func HasPrefix(s, prefix string) bool {\n\treturn stringslite.HasPrefix(s, prefix)\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/cookie.go",
+          "code_snippet": "Cookie struct {\n\tName   string\n\tValue  string\n\tQuoted bool // indicates whether the Value was originally quoted\n\n\tPath       string    // optional\n\tDomain     string    // optional\n\tExpires    time.Time // optional\n\tRawExpires string    // for reading cookies only\n\n\t// MaxAge=0 means no 'Max-Age' attribute specified.\n\t// MaxAge\u003c0 means delete cookie now, equivalently 'Max-Age: 0'\n\t// MaxAge\u003e0 means Max-Age attribute present and given in seconds\n\tMaxAge      int\n\tSecure      bool\n\tHttpOnly    bool\n\tSameSite    SameSite\n\tPartitioned bool\n\tRaw         string\n\tUnparsed    []string // Raw text of unparsed attribute-value pairs\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/bytes/buffer.go",
+          "code_snippet": "func (b *Buffer) Bytes() []byte { return b.buf[b.off:] }",
+          "ref_module": ""
+        }
+      ],
+      "covered_lines": [
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        270,
+        271,
+        272,
+        274,
+        275,
+        276,
+        277,
+        278,
+        279,
+        280,
+        283,
+        284,
+        285,
+        289,
+        290,
+        291,
+        292,
+        293,
+        294,
+        295,
+        296,
+        297,
+        298,
+        299,
+        300,
+        301,
+        302,
+        303,
+        306,
+        309,
+        310,
+        311,
+        312,
+        313,
+        314,
+        319,
+        320,
+        321,
+        322,
+        323,
+        324,
+        325,
+        326,
+        327,
+        328,
+        329,
+        330,
+        331,
+        332,
+        333,
+        334,
+        335,
+        336,
+        337,
+        338,
+        339,
+        342,
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349,
+        350,
+        351,
+        352,
+        353,
+        354,
+        355,
+        356,
+        357,
+        358,
+        359,
+        360,
+        362,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374,
+        375,
+        376,
+        377,
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        398,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408
+      ],
+      "cover_details": {
+        "line_cover_rate": 0.8133333333333334
+      }
+    },
+    {
+      "id": "github.com/labstack/echo/v4/middleware/static.go:listDir",
+      "testcases": [
+        {
+          "package": "github.com/labstack/echo/v4/middleware",
+          "rel_file_path": "middleware/static_test.go",
+          "func_name": "TestStatic"
+        }
+      ],
+      "name": "listDir",
+      "signature": "listDir (t *template.Template, name string, dir http.File, res *echo.Response) (err error)",
+      "ground_truth": "func listDir(t *template.Template, name string, dir http.File, res *echo.Response) (err error) {\n\tfiles, err := dir.Readdir(-1)\n\tif err != nil {\n\t\treturn\n\t}\n\n\t// Create directory index\n\tres.Header().Set(echo.HeaderContentType, echo.MIMETextHTMLCharsetUTF8)\n\tdata := struct {\n\t\tName  string\n\t\tFiles []interface{}\n\t}{\n\t\tName: name,\n\t}\n\tfor _, f := range files {\n\t\tdata.Files = append(data.Files, struct {\n\t\t\tName string\n\t\t\tDir  bool\n\t\t\tSize string\n\t\t}{f.Name(), f.IsDir(), bytes.Format(f.Size())})\n\t}\n\treturn t.Execute(res, data)\n}",
+      "function_comment": "// StaticWithConfig returns a Static middleware with config.",
+      "function_statement": "// StaticWithConfig returns a Static middleware with config.",
+      "start_line": 248,
+      "end_line": 270,
+      "file_path": "./middleware/static.go",
+      "repo_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/response.go",
+          "code_snippet": "Response struct {\n\tWriter      http.ResponseWriter\n\techo        *Echo\n\tbeforeFuncs []func()\n\tafterFuncs  []func()\n\tStatus      int\n\tSize        int64\n\tCommitted   bool\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/response.go",
+          "code_snippet": "func (r *Response) Header() http.Header {\n\treturn r.Writer.Header()\n}",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "HeaderContentType         = \"Content-Type\"",
+          "ref_module": "v4"
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/code/opensource/echo/echo.go",
+          "code_snippet": "MIMETextHTMLCharsetUTF8              = MIMETextHTML + \"; \" + charsetUTF8",
+          "ref_module": "v4"
+        }
+      ],
+      "third_party_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/github.com/labstack/gommon@v0.4.2/bytes/bytes.go",
+          "code_snippet": "func Format(value int64) string {\n\treturn global.Format(value)\n}",
+          "ref_module": "bytes"
+        }
+      ],
+      "system_dependencies": [
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/html/template/template.go",
+          "code_snippet": "Template struct {\n\t// Sticky error if escaping fails, or escapeOK if succeeded.\n\tescapeErr error\n\t// We could embed the text/template field, but it's safer not to because\n\t// we need to keep our version of the name space and the underlying\n\t// template's in sync.\n\ttext *template.Template\n\t// The underlying template's parse tree, updated to be HTML-safe.\n\tTree       *parse.Tree\n\t*nameSpace // common to all associated templates\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "string string",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/fs.go",
+          "code_snippet": "File interface {\n\tio.Closer\n\tio.Reader\n\tio.Seeker\n\tReaddir(count int) ([]fs.FileInfo, error)\n\tStat() (fs.FileInfo, error)\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "error interface {\n\tError() string\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "nil Type",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/net/http/header.go",
+          "code_snippet": "func (h Header) Set(key, value string) {\n\ttextproto.MIMEHeader(h).Set(key, value)\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "func append(slice []Type, elems ...Type) []Type",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/builtin/builtin.go",
+          "code_snippet": "bool bool",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/io/fs/fs.go",
+          "code_snippet": "FileInfo interface {\n\tName() string       // base name of the file\n\tSize() int64        // length in bytes for regular files; system-dependent for others\n\tMode() FileMode     // file mode bits\n\tModTime() time.Time // modification time\n\tIsDir() bool        // abbreviation for Mode().IsDir()\n\tSys() any           // underlying data source (can return nil)\n}",
+          "ref_module": ""
+        },
+        {
+          "referenced_url": "file:///Users/bytedance/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.0.darwin-arm64/src/html/template/template.go",
+          "code_snippet": "func (t *Template) Execute(wr io.Writer, data any) error {\n\tif err := t.escape(); err != nil {\n\t\treturn err\n\t}\n\treturn t.text.Execute(wr, data)\n}",
+          "ref_module": ""
+        }
+      ],
+      "covered_lines": [
+        248,
+        249,
+        250,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269
+      ],
+      "cover_details": {
+        "line_cover_rate": 0.782608695652174
+      }
+    }
+  ]
+}
